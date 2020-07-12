@@ -6,7 +6,7 @@ import { MiddlewareTransform } from '@typeclient/core/dist/application/transform
 import { ComposeNextCallback } from '@typeclient/core/dist/application/compose';
 import { ExceptionTransfrom } from '@typeclient/core/dist/application/transforms/expception';
 
-// usePopStateHistoryMode()
+usePopStateHistoryMode()
 
 interface TCustomRouteData {
   count: number
@@ -62,16 +62,18 @@ class CustomController {
   @useMiddleware(testMiddleware)
   @useException(CustomError)
   test(ctx: Context<TCustomRouteData>) {
-    const { count } = useContextState(() => {
+    const { count, status } = useContextState(() => {
       return {
-        count: ctx.state.count
+        count: ctx.state.count,
+        status: ctx.status.value
       }
     });
 
     const Cmp = useContextComponent(ctx.app as ReactApplication, this.Abc, 'test');
 
     return React.createElement(React.Fragment, null, 
-      React.createElement('h3', null, ctx.query.a + 'test title' + count),
+      React.createElement('span', null, 'status:' + status),
+      React.createElement('h3', null, '-' + ctx.query.a + 'test title' + count),
       React.createElement('button', {
         onClick: () => {
           ctx.state.count = ctx.state.count + this.Abc.abc();

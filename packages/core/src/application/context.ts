@@ -2,7 +2,7 @@ import { Request } from './request';
 import { Application } from './application';
 import { ContextEventEmitter } from './events';
 import { TApplicationContextLifeCycle } from './lifecycle';
-import { reactive, Ref, UnwrapRef, computed } from '@vue/reactivity';
+import { reactive, Ref, UnwrapRef, ref } from '@vue/reactivity';
 
 type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 let index = 0;
@@ -15,8 +15,7 @@ export class Context<T extends object = {}> extends ContextEventEmitter<TApplica
   public readonly params: { [key: string]: string };
   public readonly key: number;
   
-  public status: 100 | 200 | 500 | 900 = 100;
-  public readonly statusCode = computed(() => this.status);
+  public status: Ref<100 | 200 | 500 | 900> = ref(100);
   private readonly rejections: ((e?: any) => void)[] = [];
 
   constructor(app: Application<any>, req: Request, data: T) {
@@ -39,7 +38,7 @@ export class Context<T extends object = {}> extends ContextEventEmitter<TApplica
 
   public destroy() {
     const rejections = this.rejections.slice(0);
-    this.status = 900;
+    this.status.value = 900;
     this.rejections.length = 0;
     let i = rejections.length;
     while (i--) rejections[i]();
