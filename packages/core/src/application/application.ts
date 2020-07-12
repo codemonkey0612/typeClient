@@ -76,18 +76,20 @@ export class Application<S extends { [key: string]: { arguments: any[], return: 
     const classInjectors = classMetadata.meta.got<TClassIndefiner<any>[]>(NAMESPACE.INJECTABLE, []);
     this.injectClassModules(...classInjectors);
     for (const [key, method] of classMetadata.methods) {
-      const propertyPath = method.meta.got<string>(NAMESPACE.PATH, null);
-      if (!propertyPath) continue;
-      const propertyEntryPath = join(classPrefix, '.', propertyPath);
+      const propertyPaths = method.meta.got<string[]>(NAMESPACE.PATH, []);
+      if (!propertyPaths.length) continue;
       const propertyInjectors = method.meta.got<TClassIndefiner<any>[]>(NAMESPACE.INJECTABLE, []);
       const propertyStates = method.meta.got<object | (() => object)>(NAMESPACE.STATE, {});
       this.injectClassModules(...propertyInjectors);
-      this.router.on(propertyEntryPath, (req: Request) => {
-        const context = this.context = new Context(this, req, typeof propertyStates === 'function' ? propertyStates() : propertyStates);
-        const server = TypeClientContainer.get<T>(classModule);
-        this.trigger('Application.onRender', context, server, key, method);
-        ContextTransforming(context, method);
-      })
+      propertyPaths.forEach(propertyPath => {
+        const propertyEntryPath = join(classPrefix, '.', propertyPath);
+        this.router.on(propertyEntryPath, (req: Request) => {
+          const context = this.context = new Context(this, req, typeof propertyStates === 'function' ? propertyStates() : propertyStates);
+          const server = TypeClientContainer.get<T>(classModule);
+          this.trigger('Application.onRender', context, server, key, method);
+          ContextTransforming(context, method);
+        })
+      });
     }
   }
 
