@@ -2,7 +2,7 @@ import { Request } from './request';
 import { Application } from './application';
 import { ContextEventEmitter } from './events';
 import { TApplicationContextLifeCycle } from './lifecycle';
-import { reactive, Ref, UnwrapRef } from '@vue/reactivity';
+import { reactive, Ref, UnwrapRef, computed } from '@vue/reactivity';
 
 type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 let index = 0;
@@ -16,7 +16,7 @@ export class Context<T extends object = {}> extends ContextEventEmitter<TApplica
   public readonly key: number;
   
   public status: 100 | 200 | 500 | 900 = 100;
-
+  public readonly statusCode = computed(() => this.status);
   private readonly rejections: ((e?: any) => void)[] = [];
 
   constructor(app: Application<any>, req: Request, data: T) {
