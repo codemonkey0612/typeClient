@@ -69,7 +69,7 @@ class CustomController {
       }
     });
 
-    const Cmp = useContextComponent(ctx.app as ReactApplication, this.Abc, 'test');
+    const Cmp = useContextComponent(this.Abc, 'test');
 
     return React.createElement(React.Fragment, null, 
       React.createElement('span', null, 'status:' + status),

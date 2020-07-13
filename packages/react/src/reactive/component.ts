@@ -1,5 +1,5 @@
 import { ReactApplication } from "../react";
-import { MethodMetaCreator, TypeClientContainer, AnnotationDependenciesAutoRegister, TClassIndefiner, Application } from "@typeclient/core";
+import { MethodMetaCreator } from "@typeclient/core";
 import { NAMESPACE } from "../annotations";
 import { FunctionComponent } from "react";
 import { useApplicationContext } from ".";
