@@ -42,7 +42,7 @@ export class Application<S extends { [key: string]: { arguments: any[], return: 
       const handler = this.router.lookup(req.pathname);
       if (!handler) return this.trigger('Application.onErrorRender', this.trigger('Application.onNotFound', req));
       if (this.context) {
-        switch (this.context.status) {
+        switch (this.context.status.value) {
           case 100: this.context.destroy(); break;
           case 200: this.context.trigger('context.destroy'); break;
         }
