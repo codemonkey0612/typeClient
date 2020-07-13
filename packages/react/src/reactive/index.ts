@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { useForceUpdate, useEffection } from './effect';
+import { Context } from '@typeclient/core';
 
 type Selector<T, S> = (store: T) => S;
 
@@ -33,5 +34,7 @@ export const useContextState = <T, S>(selector: Selector<T, S>): S => {
 };
 
 export const ContextProvider = StoreContext.Provider;
-export const useApplicationContext = useStoreContext;
+export function useApplicationContext<T extends object = {}>() {
+  return useStoreContext() as Context<T>;
+}
 export * from './component';
