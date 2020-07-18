@@ -24,13 +24,19 @@ class testMiddleware<T extends Context<TCustomRouteData>> implements MiddlewareT
   async use(ctx: T, next: ComposeNextCallback) {
     console.log(Number(ctx.query.a), 'in middleware')
     await new Promise((resolve, reject) => {
+      let i = 0;
       // return reject(new Error('catch error2222'))
-      const timer = setTimeout(() => {
-        ctx.state.count = 999;
-        console.log(Number(ctx.query.a), 'setted data 999')
-        resolve();
-        unbind();
-      }, 3000);
+      const timer = setInterval(() => {
+        if (i > 3) {
+          console.log(Number(ctx.query.a), 'setted data')
+          clearInterval(timer);
+          resolve();
+          unbind();
+        }
+        else {
+          ctx.state.count = i++;
+        }
+      }, 1000)
       const unbind = ctx.useReject(() => {
         clearTimeout(timer);
         reject();
@@ -69,6 +75,13 @@ class CustomController {
       }
     });
 
+    ctx.useRouteEffect(() => {
+      console.log('in mount', ctx.req.pathname);
+      return () => {
+        console.log('in unmount', ctx.req.pathname)
+      }
+    })
+
     const Cmp = useContextComponent(this.Abc, 'test');
 
     return React.createElement(React.Fragment, null, 
@@ -88,6 +101,12 @@ class CustomController {
 
   @Route('/ooo')
   sss(ctx: Context) {
+    ctx.useRouteEffect(() => {
+      console.log('in mount', ctx.req.pathname);
+      return () => {
+        console.log('in unmount', ctx.req.pathname)
+      }
+    })
     return React.createElement('p', null, '123 - ')
   }
 }

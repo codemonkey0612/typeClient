@@ -29,8 +29,7 @@ export const useContextState = <T, S>(selector: Selector<T, S>): S => {
     lazy: true,
   });
 
-  const value = effection();
-  return value;
+  return effection();
 };
 
 export const ContextProvider = StoreContext.Provider;

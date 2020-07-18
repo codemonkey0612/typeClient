@@ -53,4 +53,13 @@ export class Context<T extends object = {}> extends ContextEventEmitter<TApplica
   }
 
   public readonly reload = () => this.app.reload();
+
+  public readonly useRouteEffect = (callback: () => (() => void) | void) => {
+    this.on('context.create', () => {
+      const unMount = callback();
+      if (typeof unMount === 'function') {
+        this.on('context.destroy', unMount);
+      }
+    });
+  }
 }

@@ -4,7 +4,13 @@ import { TAnnotationScanerMethod } from "../annotation";
 import { ExceptionConsumer } from "./transforms/expception";
 export async function ContextTransforming<T extends object = {}>(ctx: Context<T>, method: TAnnotationScanerMethod) {
   const middlewareConsumer = new MiddlewareTransforms();
-  return await middlewareConsumer.compose(ctx, method).catch(async (e?: Error) => {
+  return await middlewareConsumer.compose(ctx, method)
+  .then(() => {
+    if (ctx.status.value === 200) {
+      return Promise.resolve(ctx.trigger('context.create'));
+    }
+  })
+  .catch(async (e?: Error) => {
     if (ctx.status.value !== 900) {
       ctx.status.value = 500;
       const consumer = new ExceptionConsumer();
