@@ -106,7 +106,7 @@ import React from 'react';
 import { Controller, Route, Context } from '@typeclient/core';
 
 @Controller()
-class CustomController {
+export class CustomController {
   @Route()
   test(ctx: Context) {
     return <p>Hello world!</p>
