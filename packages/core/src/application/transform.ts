@@ -7,7 +7,7 @@ export async function ContextTransforming<T extends object = {}>(ctx: Context<T>
   return await middlewareConsumer.compose(ctx, method)
   .then(() => {
     if (ctx.status.value === 200) {
-      return Promise.resolve(ctx.trigger('context.create'));
+      return Promise.resolve(ctx.$e.emit('context.create'));
     }
   })
   .catch(async (e?: Error) => {

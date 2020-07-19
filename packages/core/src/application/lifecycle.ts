@@ -24,14 +24,3 @@ export type TApplicationLifeCycle = {
     return: void
   }
 }
-
-export type TApplicationContextLifeCycle = {
-  'context.destroy': {
-    arguments: [],
-    return: void,
-  },
-  'context.create': {
-    arguments: [],
-    return: any,
-  },
-}

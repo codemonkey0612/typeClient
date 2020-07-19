@@ -37,3 +37,4 @@ export function useApplicationContext<T extends object = {}>() {
   return useStoreContext() as Context<T>;
 }
 export * from './component';
+export * from './LifeHook';

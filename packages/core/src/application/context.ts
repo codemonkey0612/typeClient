@@ -1,25 +1,24 @@
+import mitt from 'mitt';
 import { Request } from './request';
 import { Application } from './application';
-import { ContextEventEmitter } from './events';
-import { TApplicationContextLifeCycle } from './lifecycle';
 import { reactive, Ref, UnwrapRef, ref } from '@vue/reactivity';
 
 type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 let index = 0;
 
-export class Context<T extends object = {}> extends ContextEventEmitter<TApplicationContextLifeCycle> {
+export class Context<T extends object = {}> {
   public readonly req: Request;
   public readonly app: Application<any>;
   public readonly state: UnwrapNestedRefs<T>;
   public readonly query: { [key: string]: string };
   public readonly params: { [key: string]: string };
   public readonly key: number;
+  public readonly $e = mitt();
   
   public status: Ref<100 | 200 | 500 | 900> = ref(100);
   private readonly rejections: ((e?: any) => void)[] = [];
 
   constructor(app: Application<any>, req: Request, data: T) {
-    super();
     this.app = app;
     this.req = req;
     this.state = reactive(data);
@@ -42,6 +41,7 @@ export class Context<T extends object = {}> extends ContextEventEmitter<TApplica
     this.rejections.length = 0;
     let i = rejections.length;
     while (i--) rejections[i]();
+    this.$e.emit('context.destroy');
   }
 
   public readonly redirect = (url: string, title?: string) => {
@@ -54,11 +54,11 @@ export class Context<T extends object = {}> extends ContextEventEmitter<TApplica
 
   public readonly reload = () => this.app.reload();
 
-  public readonly useRouteEffect = (callback: () => (() => void) | void) => {
-    this.on('context.create', () => {
+  public readonly useEffect = (callback: () => (() => void) | void) => {
+    return this.$e.on('context.create', () => {
       const unMount = callback();
       if (typeof unMount === 'function') {
-        this.on('context.destroy', unMount);
+        return this.$e.on('context.destroy', unMount);
       }
     });
   }

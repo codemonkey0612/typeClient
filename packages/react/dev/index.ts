@@ -1,5 +1,5 @@
-import React from 'react';
-import { ReactApplication, useContextState, Template, Component, useContextComponent } from '../src';
+import React, { useEffect } from 'react';
+import { ReactApplication, useContextState, Template, Component, useContextComponent, useApplicationContext, useContextEffect } from '../src';
 import { bootstrp, Controller, Route, State, Context, useMiddleware, useException, usePopStateHistoryMode } from '@typeclient/core';
 import { injectable, inject } from 'inversify';
 import { MiddlewareTransform } from '@typeclient/core/dist/application/transforms/middleware';
@@ -75,7 +75,7 @@ class CustomController {
       }
     });
 
-    ctx.useRouteEffect(() => {
+    useContextEffect(() => {
       console.log('in mount', ctx.req.pathname);
       return () => {
         console.log('in unmount', ctx.req.pathname)
@@ -101,7 +101,7 @@ class CustomController {
 
   @Route('/ooo')
   sss(ctx: Context) {
-    ctx.useRouteEffect(() => {
+    useContextEffect(() => {
       console.log('in mount', ctx.req.pathname);
       return () => {
         console.log('in unmount', ctx.req.pathname)
