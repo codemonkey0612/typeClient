@@ -4,7 +4,7 @@ import { Application, TApplicationOptions, Context, TAnnotationScanerMethod } fr
 import { TReactApplicationLifecycles } from './lifecycle';
 import { CreateGlobalComponent } from './components/global';
 import { NAMESPACE } from './annotations';
-import { ContextProvider } from './reactive';
+import { ContextProvider, useContextState } from './reactive';
 
 export type TReactApplicationOptions = TApplicationOptions & { el: HTMLElement };
 
@@ -45,9 +45,13 @@ export class ReactApplication extends Application<TReactApplicationLifecycles> {
     const fcs = this.FCS.get(server);
     if (!fcs.has(key)) {
       const Component = server[key].bind(server);
+      const Checker = (props: React.Props<any>) => {
+        const { status } = useContextState((ctx: Context) => ({ status: ctx.status.value }));
+        return status === 500 ? null : React.createElement(Component, props);
+      }
       const CMP = (props: React.Props<any>) => React.createElement(
         ContextProvider, { value: props }, 
-        React.createElement(Component, props)
+        React.createElement(Checker, props)
       )
       fcs.set(key, CMP);
     }
