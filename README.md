@@ -60,8 +60,9 @@ const routes = (
 ```tsx
 // index.ts
 import React from 'react';
-import { CustomController } from './controller';
 import { bootstrp, usePopStateHistoryMode } from '@typeclient/core';
+import { ReactApplication } from '@typeclient/react';
+import { CustomController } from './controller';
 
 // 使用HTML5的popstate模式，默认使用hashchange模式
 usePopStateHistoryMode();
@@ -95,11 +96,15 @@ app.on('Application.onNotFound', ctx => {
 bootstrp();
 ```
 
+> 您也可以通过 `new ReactApplication()` 创建多个实例在一个页面上。
+
 以上是一个启动文件，我们来看一下路由文件：
 
 ```ts
 // controller.tsx
+import React from 'react';
 import { Controller, Route, Context } from '@typeclient/core';
+
 @Controller()
 class CustomController {
   @Route()
