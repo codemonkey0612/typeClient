@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { useHistoryFeedback, redirect, replace, reload } from '../history';
-import { TClassIndefiner, AnnotationMetaDataScan, NAMESPACE, AnnotationDependenciesAutoRegister } from '../annotation';
+import { TClassIndefiner, AnnotationMetaDataScan, NAMESPACE, AnnotationDependenciesAutoRegister, TAnnotationScanerMethod } from '../annotation';
 import { TypeClientContainer } from '../ioc';
 import { Router, RouterArguments } from '../router';
 import { Context } from './context';
@@ -87,7 +87,7 @@ export class Application<S extends { [key: string]: { arguments: any[], return: 
           const context = this.context = new Context(this, req, typeof propertyStates === 'function' ? propertyStates() : propertyStates);
           const server = TypeClientContainer.get<T>(classModule);
           this.trigger('Application.onRender', context, server, key, method);
-          ContextTransforming(context, method);
+          ContextTransforming(context, method)
         })
       });
     }

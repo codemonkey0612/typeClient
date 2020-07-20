@@ -12,10 +12,9 @@ export async function ContextTransforming<T extends object = {}>(ctx: Context<T>
   })
   .catch(async (e?: Error) => {
     if (ctx.status.value !== 900) {
-      ctx.status.value = 500;
       const consumer = new ExceptionConsumer();
-      const result = await consumer.catch(e, method, ctx);
-      if (result) return ctx.app.trigger('Application.onErrorRender', result);
+      ctx.error.value = await consumer.catch(e, method, ctx);
+      ctx.status.value = 500;
     }
   });
 }

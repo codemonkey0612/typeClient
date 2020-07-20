@@ -15,9 +15,7 @@ export const useEffection = (...effectArgs: Parameters<typeof effect>) => {
   }
 
   // 卸载组件后取消effect
-  const stopEffect = () => {
-    stop(effectionRef.current!);
-  };
+  const stopEffect = () => stop(effectionRef.current!);
   useEffect(() => stopEffect, []);
 
   return effectionRef.current;

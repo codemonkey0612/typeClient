@@ -45,13 +45,19 @@ export class ReactApplication extends Application<TReactApplicationLifecycles> {
     const fcs = this.FCS.get(server);
     if (!fcs.has(key)) {
       const Component = server[key].bind(server);
-      const Checker = (props: React.Props<any>) => {
-        const { status } = useContextState((ctx: Context) => ({ status: ctx.status.value }));
-        return status === 500 ? null : React.createElement(Component, props);
+      const Checker = (ctx: Context) => {
+        const { status, error } = useContextState(() => ({ 
+          status: ctx.status.value,
+          error: ctx.error.value,
+        }));
+ 
+        return status === 500 
+          ? error
+          : React.createElement(Component, ctx);
       }
-      const CMP = (props: React.Props<any>) => React.createElement(
-        ContextProvider, { value: props }, 
-        React.createElement(Checker, props)
+      const CMP = (ctx: Context) => React.createElement(
+        ContextProvider, { value: ctx }, 
+        React.createElement(Checker, ctx)
       )
       fcs.set(key, CMP);
     }

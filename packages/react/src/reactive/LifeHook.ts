@@ -4,13 +4,13 @@ import { Context } from "@typeclient/core";
 
 export function useContextEffect(callback: () => (() => void) | void) {
   const ctx = useApplicationContext();
-  const { status } = useContextState(() => {
-    return {
-      status: ctx.status.value,
-    }
-  })
+  // const { status } = useContextState(() => {
+  //   return {
+  //     status: ctx.status.value,
+  //   }
+  // })
   useEffect(() => {
-    switch (status) {
+    switch (ctx.status.value) {
       case 200:
         const unMount = callback();
         if (typeof unMount === 'function') {

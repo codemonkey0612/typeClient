@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { ReactApplication, useContextState, Template, Component, useContextComponent, useApplicationContext, useContextEffect } from '../src';
+import React from 'react';
+import { ReactApplication, useContextState, Template, Component, useContextComponent, useContextEffect } from '../src';
 import { bootstrp, Controller, Route, State, Context, useMiddleware, useException, usePopStateHistoryMode } from '@typeclient/core';
 import { injectable, inject } from 'inversify';
 import { MiddlewareTransform } from '@typeclient/core/dist/application/transforms/middleware';
@@ -32,7 +32,12 @@ class testMiddleware<T extends Context<TCustomRouteData>> implements MiddlewareT
           clearInterval(timer);
           resolve();
           unbind();
-        }
+        } 
+        // else if (i > 5) {
+        //   unbind();
+        //   clearInterval(timer);
+        //   reject(new Error('catch error2222'))
+        // }
         else {
           ctx.state.count = i++;
         }
@@ -68,13 +73,11 @@ class CustomController {
   @useMiddleware(testMiddleware)
   @useException(CustomError)
   test(ctx: Context<TCustomRouteData>) {
-    const { count, status } = useContextState(() => {
+    const { count } = useContextState(() => {
       return {
         count: ctx.state.count,
-        status: ctx.status.value
       }
     });
-
     useContextEffect(() => {
       console.log('in mount', ctx.req.pathname);
       return () => {
@@ -85,7 +88,7 @@ class CustomController {
     const Cmp = useContextComponent(this.Abc, 'test');
 
     return React.createElement(React.Fragment, null, 
-      React.createElement('span', null, 'status:' + status),
+      React.createElement('span', null, 'status:' + ctx.status.value),
       React.createElement('h3', null, '-' + ctx.query.a + 'test title' + count),
       React.createElement('button', {
         onClick: () => {
@@ -107,7 +110,7 @@ class CustomController {
         console.log('in unmount', ctx.req.pathname)
       }
     })
-    return React.createElement('p', null, '123 - ')
+    return React.createElement('p', null, '123 - ' + ctx.status.value)
   }
 }
 
@@ -122,6 +125,9 @@ app.on('Application.onError', (err, ctx) => {
   return React.createElement('h2', null, err.message);
 })
 
+app.on('Application.onNotFound', (req) => {
+  return React.createElement('h2', null, req.pathname);
+})
 export const Slot = app.createSlotter();
 
 bootstrp();
