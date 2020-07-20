@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { Application, TApplicationOptions, Context, TAnnotationScanerMethod } from '@typeclient/core';
 import { TReactApplicationLifecycles } from './lifecycle';
@@ -52,7 +52,7 @@ export class ReactApplication extends Application<TReactApplicationLifecycles> {
         }));
  
         return status === 500 
-          ? error
+          ? error || null
           : React.createElement(Component, ctx);
       }
       const CMP = (ctx: Context) => React.createElement(

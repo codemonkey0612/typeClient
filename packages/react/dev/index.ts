@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useDebugValue } from 'react';
 import { ReactApplication, useContextState, Template, Component, useContextComponent, useContextEffect } from '../src';
 import { bootstrp, Controller, Route, State, Context, useMiddleware, useException, usePopStateHistoryMode } from '@typeclient/core';
 import { injectable, inject } from 'inversify';
@@ -25,7 +25,7 @@ class testMiddleware<T extends Context<TCustomRouteData>> implements MiddlewareT
     console.log(Number(ctx.query.a), 'in middleware')
     await new Promise((resolve, reject) => {
       let i = 0;
-      // return reject(new Error('catch error2222'))
+      return reject(new Error('catch error2222'))
       const timer = setInterval(() => {
         if (i > 3) {
           console.log(Number(ctx.query.a), 'setted data')
@@ -73,9 +73,10 @@ class CustomController {
   @useMiddleware(testMiddleware)
   @useException(CustomError)
   test(ctx: Context<TCustomRouteData>) {
-    const { count } = useContextState(() => {
+    const { count, status } = useContextState(() => {
       return {
         count: ctx.state.count,
+        status: ctx.status.value
       }
     });
     useContextEffect(() => {
@@ -88,7 +89,7 @@ class CustomController {
     const Cmp = useContextComponent(this.Abc, 'test');
 
     return React.createElement(React.Fragment, null, 
-      React.createElement('span', null, 'status:' + ctx.status.value),
+      React.createElement('span', null, 'status:' + status),
       React.createElement('h3', null, '-' + ctx.query.a + 'test title' + count),
       React.createElement('button', {
         onClick: () => {
