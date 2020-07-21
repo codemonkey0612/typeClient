@@ -20,17 +20,22 @@ export class Application<S extends {
     return: any 
   } 
 } = {}> extends ContextEventEmitter<TApplicationLifeCycle & S> {
-  private initialized = false;
+  private _initialized = false;
+  private _subscribed = false;
+  private _unSubscribe: ReturnType<typeof useHistoryFeedback>;
+
   public context: Context;
   public readonly prefix: string;
   private readonly router: Router;
 
   // history reload action
   public readonly reload = reload;
-
-  public _unSubscribe: ReturnType<typeof useHistoryFeedback>;
-  private _subscribed = false;
-  public readonly nextTick = createNextTick((e: Error, ctx: Context) => this.trigger('Application.onError', e, ctx));
+  public readonly nextTick = createNextTick((e: Error, ctx: Context) => {
+    this.trigger(
+      'Application.onErrorRender', 
+      this.trigger('Application.onError', e, ctx)
+    )
+  });
 
   constructor(options: TApplicationOptions = { prefix: '/' }) {
     super();
@@ -50,9 +55,9 @@ export class Application<S extends {
   public subscribe() {
     if (this._subscribed) return this;
     this._unSubscribe = useHistoryFeedback(url => {
-      if (this.initialized) return this.createContext(url);
+      if (this._initialized) return this.createContext(url);
       return this.trigger('Application.onInit', () => {
-        this.initialized = true;
+        this._initialized = true;
         this.createContext(url);
       });
     });
@@ -105,9 +110,14 @@ export class Application<S extends {
     if (uri) {
       const req = new Request(uri);
       const handler = this.router.lookup(req.pathname);
+      
       // Not found.
       // You can deal with Application.onNotFound by return a value.
-      if (!handler) return this.trigger('Application.onErrorRender', this.trigger('Application.onNotFound', req));
+      if (!handler) return this.trigger(
+        'Application.onErrorRender', 
+        this.trigger('Application.onNotFound', req)
+      );
+
       if (this.context) {
         // deal with old context
         // force it destory.
