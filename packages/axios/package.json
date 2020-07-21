@@ -1,0 +1,27 @@
+{
+  "name": "@typeclient/axios",
+  "version": "1.0.0",
+  "description": "typeclient axios",
+  "author": "",
+  "homepage": "https://github.com/flowxjs/TypeClient",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "directories": {
+    "lib": "src",
+    "test": "__tests__"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@typeclient/core": "^1.1.1",
+    "axios": "^0.19.2"
+  }
+}
