@@ -45,6 +45,7 @@ const routes = (
 - [x] **@typeclient/core** 核心模块
 - [x] **@typeclient/react** react支持的驱动
 - [ ] **@typeclient/vue** vue支持的驱动
+- [x] **@typeclient/axios** axios请求支持
 
 > `@typeclient/vue` 将在vue3发布正式版后开源。
 
@@ -79,7 +80,7 @@ const app = new ReactApplication({
 app.setController(CustomController);
 
 // 当过程捕获错误时候我们返回一个ReactElement渲染在页面上
-app.on('Application.onError', (err, ctx) => {
+app.onError((err, ctx) => {
   return <section>
     <h1>Error on {ctx.req.pathname}:</h2>
     {err.message}
@@ -87,10 +88,10 @@ app.on('Application.onError', (err, ctx) => {
 });
 
 // 当没有匹配到路由的时候
-app.on('Application.onNotFound', ctx => {
+app.onNotFound(req => {
   return <section>
     <h1>Not Found:</h2>
-    find on {ctx.req.pathname}
+    find on {req.pathname}
   </section>;
 });
 
