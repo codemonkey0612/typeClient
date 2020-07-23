@@ -56,7 +56,7 @@ const routes = (
 
 ## Preview
 
-先看一个例子：[https://codesandbox.io/s/thirsty-khorana-kcdky](https://codesandbox.io/s/thirsty-khorana-kcdky)
+先看一个例子：[https://codesandbox.io/s/delicate-breeze-l49v1](https://codesandbox.io/s/delicate-breeze-l49v1)
 
 我们可以优先预览下它的写法，我们以`React`为例：
 
