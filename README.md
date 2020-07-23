@@ -58,13 +58,7 @@ const routes = (
 
 先看一个例子：[https://codesandbox.io/s/delicate-breeze-l49v1](https://codesandbox.io/s/delicate-breeze-l49v1)
 
-<iframe
-  src="https://codesandbox.io/embed/delicate-breeze-l49v1?autoresize=1&fontsize=14&hidenavigation=1"
-  style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-  title="delicate-breeze-l49v1"
-  allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-  sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-></iframe>
+[![Edit delicate-breeze-l49v1](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/delicate-breeze-l49v1?autoresize=1&fontsize=14&hidenavigation=1)
 
 我们可以优先预览下它的写法，我们以`React`为例：
 
