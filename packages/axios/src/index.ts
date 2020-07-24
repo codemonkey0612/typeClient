@@ -1,6 +1,8 @@
 import { Context } from '@typeclient/core';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import { injectable } from 'inversify';
 
+@injectable()
 export class TypeAxios {
   constructor(private readonly ajax: AxiosInstance) {}
 

@@ -5,11 +5,11 @@ import { Request } from './request';
 export type TApplicationLifeCycle = {
   'Application.onError': {
     arguments: [Error, Context],
-    return: void
+    return: any
   },
   'Application.onNotFound': {
     arguments: [Request],
-    return: void
+    return: any
   },
   'Application.onInit': {
     arguments: [() => void],
@@ -17,7 +17,7 @@ export type TApplicationLifeCycle = {
   },
   'Application.onRender': {
     arguments: [Context, any, string, TAnnotationScanerMethod],
-    return: any,
+    return: void,
   },
   'Application.onErrorRender': {
     arguments: [any],
