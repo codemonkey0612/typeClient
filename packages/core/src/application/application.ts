@@ -12,6 +12,7 @@ import { Request } from './request';
 
 type TNotFound = TApplicationLifeCycle['Application.onNotFound'];
 type TError = TApplicationLifeCycle['Application.onError'];
+type THashAnchor = TApplicationLifeCycle['Application.onHashAnchorChange'];
 export type TApplicationOptions = RouterArguments & { prefix: string };
 
 export class Application<S extends { 
@@ -102,6 +103,10 @@ export class Application<S extends {
    */
   public onError(callback: (...args: TError['arguments']) => TError['return']) {
     return this.on('Application.onError', callback);
+  }
+
+  public onHashAnchor(callback: (...args: THashAnchor['arguments']) => THashAnchor['return']) {
+    return this.on('Application.onHashAnchorChange', callback);
   }
 
   // create a new context for request.

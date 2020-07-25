@@ -17,4 +17,8 @@ export class ContextEventEmitter<T extends {
       return callback(...args);
     }
   }
+
+  public has<M extends keyof T>(name: M) {
+    return this.stacks.has(name);
+  }
 }

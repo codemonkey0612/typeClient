@@ -25,19 +25,22 @@ export class Context<T extends object = {}> {
     this.query = this.req.query;
     this.params = this.req.params;
     this.key = index++;
+    this.onHashAnchor();
+  }
+
+  private onHashAnchor() {
     this.$e.on('context.create', () => {
       const hash = this.req.hash;
       if (hash) {
         const id = hash.substring(1);
         if (id) {
-          this.app.nextTick({ id }, (options: { id: string }) => {
-            if (options.id) {
-              const el = document.getElementById(options.id);
-              if (el) {
-                el.scrollIntoView({
-                  behavior: 'smooth',
-                });
-              }
+          this.app.nextTick(null, () => {
+            const el = document.getElementById(id);
+            if (el) {
+              if (!this.app.has('Application.onHashAnchorChange')) return el.scrollIntoView({
+                behavior: 'smooth',
+              });
+              this.app.trigger('Application.onHashAnchorChange', el);
             }
           })
         }

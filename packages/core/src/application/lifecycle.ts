@@ -21,6 +21,10 @@ export type TApplicationLifeCycle = {
   },
   'Application.onErrorRender': {
     arguments: [any],
-    return: void
+    return: void,
+  },
+  'Application.onHashAnchorChange': {
+    arguments: [HTMLElement],
+    return: void,
   }
 }
