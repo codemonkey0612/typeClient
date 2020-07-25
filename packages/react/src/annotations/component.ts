@@ -27,5 +27,5 @@ export function Component() {
 
 export declare class ComponentTransform {
   static readonly __isTypedComponent__: true;
-  public render(props: React.Props<any>): React.ReactElement<any>;
+  public render(props: any): React.ReactElement;
 }
