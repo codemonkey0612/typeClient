@@ -58,7 +58,7 @@ const routes = (
 
 先看一个例子：[https://codesandbox.io/s/delicate-breeze-l49v1](https://codesandbox.io/s/delicate-breeze-l49v1)
 
-[![Edit delicate-breeze-l49v1](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/delicate-breeze-l49v1?autoresize=1&fontsize=14&hidenavigation=1)
+[![Edit flowxjs/TypeClientReactTemplate](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/flowxjs/TypeClientReactTemplate/tree/master/?fontsize=14&hidenavigation=1&theme=dark)
 
 我们可以优先预览下它的写法，我们以`React`为例：
 
