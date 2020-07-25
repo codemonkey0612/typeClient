@@ -1,10 +1,10 @@
 import { Context } from '@typeclient/core';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { injectable } from 'inversify';
+import { injectable, unmanaged } from 'inversify';
 
 @injectable()
 export class TypeAxios {
-  constructor(private readonly ajax: AxiosInstance) {}
+  constructor(@unmanaged() private readonly ajax: AxiosInstance) {}
 
   public get<T extends object = {}>(ctx: Context<T>, url: string, configs: AxiosRequestConfig = {}) {
     const source = axios.CancelToken.source();
