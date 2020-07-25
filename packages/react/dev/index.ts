@@ -1,12 +1,40 @@
-import React, { useDebugValue } from 'react';
-import { ReactApplication, useContextState, Template, Component, useContextComponent, useContextEffect } from '../src';
+import React from 'react';
+import { ReactApplication, useContextState, Template, Component, useContextEffect, ComponentTransform } from '../src';
 import { bootstrp, Controller, Route, State, Context, useMiddleware, useException, usePopStateHistoryMode } from '@typeclient/core';
 import { injectable, inject } from 'inversify';
 import { MiddlewareTransform } from '@typeclient/core/dist/application/transforms/middleware';
 import { ComposeNextCallback } from '@typeclient/core/dist/application/compose';
 import { ExceptionTransfrom } from '@typeclient/core/dist/application/transforms/expception';
 
+
 usePopStateHistoryMode()
+
+@injectable()
+class Abc {
+
+  abc() {
+    
+    return 123;
+  }
+}
+
+@Component()
+class ttt implements ComponentTransform {
+  @inject(Abc) private Abc: Abc;
+  public render(props: React.PropsWithoutRef<{}>) {
+    return React.createElement('div', null, '123evio-' + this.Abc.abc());
+  }
+}
+
+@Component()
+class uxx implements ComponentTransform {
+  render(props: any) {
+    return React.createElement('div', null, 
+      React.createElement('h2', null, 'tessssssss'),
+      React.createElement(Slot, props)
+    );
+  }
+}
 
 interface TCustomRouteData {
   count: number
@@ -25,7 +53,7 @@ class testMiddleware<T extends Context<TCustomRouteData>> implements MiddlewareT
     console.log(Number(ctx.query.a), 'in middleware')
     await new Promise((resolve, reject) => {
       let i = 0;
-      return reject(new Error('catch error2222'))
+      // return reject(new Error('catch error2222'))
       const timer = setInterval(() => {
         if (i > 3) {
           console.log(Number(ctx.query.a), 'setted data')
@@ -51,22 +79,13 @@ class testMiddleware<T extends Context<TCustomRouteData>> implements MiddlewareT
   }
 }
 
-@injectable()
-class Abc {
-  abc() {
-    return 123;
-  }
 
-  @Component()
-  test(props: React.PropsWithoutRef<any>) {
-    return React.createElement('p', null, 'hello world');
-  }
-}
 
 @Controller()
-@Template(ZTemplate)
+@Template(uxx)
 class CustomController {
   @inject(Abc) private readonly Abc: Abc;
+  @inject(ttt) private readonly ttt: ttt;
 
   @Route()
   @State<TCustomRouteData>(() => ({ count: 0 }))
@@ -86,7 +105,7 @@ class CustomController {
       }
     })
 
-    const Cmp = useContextComponent(this.Abc, 'test');
+    const Cmp = this.ttt.render
 
     return React.createElement(React.Fragment, null, 
       React.createElement('span', null, 'status:' + status),
@@ -105,13 +124,14 @@ class CustomController {
 
   @Route('/ooo')
   sss(ctx: Context) {
+    const Val = this.ttt.render;
     useContextEffect(() => {
       console.log('in mount', ctx.req.pathname);
       return () => {
         console.log('in unmount', ctx.req.pathname)
       }
     })
-    return React.createElement('p', null, '123 - ' + ctx.status.value)
+    return React.createElement('div', null, '123 - ' + ctx.status.value, React.createElement(Val))
   }
 }
 
