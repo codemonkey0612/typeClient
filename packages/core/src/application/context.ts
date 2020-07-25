@@ -25,6 +25,24 @@ export class Context<T extends object = {}> {
     this.query = this.req.query;
     this.params = this.req.params;
     this.key = index++;
+    this.$e.on('context.create', () => {
+      const hash = this.req.hash;
+      if (hash) {
+        const id = hash.substring(1);
+        if (id) {
+          this.app.nextTick({ id }, (options: { id: string }) => {
+            if (options.id) {
+              const el = document.getElementById(options.id);
+              if (el) {
+                el.scrollIntoView({
+                  behavior: 'smooth',
+                });
+              }
+            }
+          })
+        }
+      }
+    })
   }
 
   public useReject(reject: (e?: any) => void) {

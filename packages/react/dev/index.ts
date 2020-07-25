@@ -116,7 +116,7 @@ class CustomController {
         },
       }, 'add +'),
       React.createElement('button', {
-        onClick: () => ctx.redirect('/ooo'),
+        onClick: () => ctx.redirect('/ooo#test'),
       }, 'go'),
       Cmp ? React.createElement(Cmp) : null
     )
@@ -131,7 +131,13 @@ class CustomController {
         console.log('in unmount', ctx.req.pathname)
       }
     })
-    return React.createElement('div', null, '123 - ' + ctx.status.value, React.createElement(Val))
+    return React.createElement('div', null, 
+      '123 - ' + ctx.status.value, 
+      React.createElement(Val), 
+      React.createElement('div', { style: { height: '10000px', width: '300px' } }, 'scroller1'),
+      React.createElement('div', { id: 'test' }, 'into view'),
+      React.createElement('div', { style: { height: '10000px', width: '300px' } }, 'scroller2')
+    )
   }
 }
 
