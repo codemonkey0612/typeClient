@@ -56,7 +56,7 @@ const routes = (
 
 ## Preview
 
-先看一个例子：[https://codesandbox.io/s/delicate-breeze-l49v1](https://codesandbox.io/s/delicate-breeze-l49v1)
+先看一个例子：
 
 [![Edit flowxjs/TypeClientReactTemplate](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/flowxjs/TypeClientReactTemplate/tree/master/?fontsize=14&hidenavigation=1&theme=dark)
 
