@@ -190,10 +190,10 @@ export class Application<S extends {
               ? propertyStates() 
               : propertyStates
           );
-          // use render hooks
-          this.trigger('Application.onRender', context, server, key, method);
           // use async middleware process to change states.
           transforming(context, method);
+          // use render hooks
+          this.trigger('Application.onRender', context, server, key, method);
         })
       });
     }

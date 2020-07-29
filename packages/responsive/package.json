@@ -1,0 +1,26 @@
+{
+  "name": "@typeclient/responsive",
+  "version": "1.0.0",
+  "description": "typeclient responsive",
+  "author": "",
+  "homepage": "https://github.com/flowxjs/TypeClient",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "directories": {
+    "lib": "src",
+    "test": "__tests__"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@vue/reactivity": "^3.0.0-rc.5"
+  }
+}

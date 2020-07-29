@@ -29,7 +29,8 @@ module.exports = {
   devServer: {
     historyApiFallback: true,
     contentBase: resolve('dist'),
-    port: 9000
+    port: 9000,
+    disableHostCheck: true
   }
 };
 
