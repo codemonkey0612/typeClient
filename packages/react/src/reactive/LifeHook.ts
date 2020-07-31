@@ -1,14 +1,8 @@
-import { useApplicationContext, useContextState } from ".";
+import { useApplicationContext } from ".";
 import { useEffect } from "react";
-import { Context } from "@typeclient/core";
 
 export function useContextEffect(callback: () => (() => void) | void) {
   const ctx = useApplicationContext();
-  // const { status } = useContextState(() => {
-  //   return {
-  //     status: ctx.status.value,
-  //   }
-  // })
   useEffect(() => {
     switch (ctx.status.value) {
       case 200:

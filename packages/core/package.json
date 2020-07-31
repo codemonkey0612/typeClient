@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@types/url-parse": "^1.4.3",
-    "@vue/reactivity": "^3.0.0-beta.18",
+    "@vue/reactivity": "^3.0.0-rc.5",
     "inversify": "^5.0.1",
     "mitt": "^2.1.0",
     "p-reduce": "^2.1.0",
