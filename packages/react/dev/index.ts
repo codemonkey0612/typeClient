@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReactApplication, useContextState, Template, Component, useContextEffect, ComponentTransform } from '../src';
-import { bootstrp, Controller, Route, State, Context, useMiddleware, useException, usePopStateHistoryMode } from '@typeclient/core';
+import { bootstrp, Controller, Route, State, Context, useMiddleware, useException, usePopStateHistoryMode, Redirect } from '@typeclient/core';
 import { injectable, inject } from 'inversify';
 import { MiddlewareTransform } from '@typeclient/core/dist/application/transforms/middleware';
 import { ComposeNextCallback } from '@typeclient/core/dist/application/compose';
@@ -116,7 +116,7 @@ class CustomController {
         },
       }, 'add +'),
       React.createElement('button', {
-        onClick: () => ctx.redirect('/ooo#test'),
+        onClick: () => ctx.redirect('/ttt'),
       }, 'go'),
       Cmp ? React.createElement(Cmp) : null
     )
@@ -138,6 +138,12 @@ class CustomController {
       React.createElement('div', { id: 'test' }, 'into view'),
       React.createElement('div', { style: { height: '10000px', width: '300px' } }, 'scroller2')
     )
+  }
+
+  @Route('/ttt')
+  @Redirect('/ooo#test')
+  mmm(ctx: Context) {
+    
   }
 }
 

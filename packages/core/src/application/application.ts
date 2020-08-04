@@ -173,6 +173,7 @@ export class Application<S extends {
       if (!propertyPaths.length) continue;
       const propertyInjectors = method.meta.got<TClassIndefiner<any>[]>(NAMESPACE.INJECTABLE, []);
       const propertyStates = method.meta.got<object | (() => object)>(NAMESPACE.STATE, {});
+      const redirect_url = method.meta.got<string | boolean>(NAMESPACE.REDIRECT, false);
       // auto register method injectors to container.
       this.injectClassModules(...propertyInjectors);
       propertyPaths.forEach(propertyPath => {
@@ -190,10 +191,44 @@ export class Application<S extends {
               ? propertyStates() 
               : propertyStates
           );
-          // use async middleware process to change states.
-          transforming(context, method);
-          // use render hooks
-          this.trigger('Application.onRender', context, server, key, method);
+
+          if (redirect_url) {
+            // It is a Redirection Function.
+            // We use output value or redirect_url for redirecting.
+            const result = (server as any)[key](context);
+            if (result instanceof Promise || isPromise(result)) {
+              // when it is a Promise object
+              result.then((url: string) => {
+                if (url) return context.replace(url);
+                if (typeof redirect_url === 'string') {
+                  return context.replace(redirect_url);
+                }
+              }).catch((e: Error) => {
+                return this.trigger(
+                  'Application.onErrorRender', 
+                  this.trigger('Application.onError', e, context)
+                );
+              })
+            } else if (typeof result === 'string') {
+              // it has return value
+              context.replace(result);
+            } else if (typeof redirect_url === 'string') {
+              // use a default value
+              context.replace(redirect_url);
+            } else {
+              // throw error.
+              this.trigger(
+                'Application.onErrorRender', 
+                this.trigger('Application.onError', 
+                  new Error('Redirection Function must return a value of string.'), context)
+              );
+            }
+          } else {
+            // use async middleware process to change states.
+            transforming(context, method);
+            // use render hooks
+            this.trigger('Application.onRender', context, server, key, method);
+          }
         })
       });
     }
@@ -225,4 +260,10 @@ export class Application<S extends {
   public replace(url: string, title?: string) {
     return replace(this.urlencode(url), title);
   }
+}
+
+function isPromise(obj: any) {
+  return !!obj &&
+    (typeof obj === 'object' || typeof obj === 'function') &&
+    ((obj.constructor && obj.constructor.name === 'Promise') || typeof obj.then === 'function')
 }

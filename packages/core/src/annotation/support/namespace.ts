@@ -7,4 +7,5 @@ export enum NAMESPACE {
   INJECTABLE = 'TypeClient.NAMESPACE.HTTP.Controller.Injectable',
   INTERCEPTOR = 'TypeClient.NAMESPACE.HTTP.Controller.Interceptor',
   STATE = 'TypeClient.NAMESPACE.HTTP.Controller.State',
+  REDIRECT = 'TypeClient.NAMESPACE.HTTP.Controller.Redirect',
 }

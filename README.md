@@ -46,6 +46,7 @@ const routes = (
 - [x] **@typeclient/react** react支持的驱动
 - [ ] **@typeclient/vue** vue支持的驱动
 - [x] **@typeclient/axios** axios请求支持
+- [x] **@typeclient/responsive** 持久化存储支持 `localStorage` `sessionStorage` and `cookie`
 
 > `@typeclient/vue` 将在vue3发布正式版后开源。
 
