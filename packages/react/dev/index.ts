@@ -36,6 +36,13 @@ class uxx implements ComponentTransform {
   }
 }
 
+function axx(props: any) {
+  return React.createElement('div', null, 
+  React.createElement('h1', null, 'eeee'),
+  React.createElement(Slot, props)
+);
+}
+
 interface TCustomRouteData {
   count: number
 }
@@ -82,7 +89,7 @@ class testMiddleware<T extends Context<TCustomRouteData>> implements MiddlewareT
 
 
 @Controller()
-@Template(uxx)
+@Template(axx)
 class CustomController {
   @inject(Abc) private readonly Abc: Abc;
   @inject(ttt) private readonly ttt: ttt;
