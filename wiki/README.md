@@ -14,8 +14,13 @@ features:
   details: 中间件就是匹配路由之前或者匹配路由完成之后所得一系列操作
 footer: MIT Licensed | Copyright © 2020-present Evio Shen
 ---
+<iframe src="https://codesandbox.io/embed/github/flowxjs/TypeClientReactTemplate/tree/master/?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="flowxjs/TypeClientReactTemplate"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
 
-# TypeClient Usage
 
 它是一套通用的路由管理的微应用架构，支持通过驱动方式接入的任意渲染架构或者库。它具有以下有点：
 
@@ -25,7 +30,7 @@ footer: MIT Licensed | Copyright © 2020-present Evio Shen
 1. 支持中间件模型
 1. 支持路由生命周期
 1. 通过事件分发快速构建不同渲染架构的驱动
-1. 轻量的体积
+1. 轻量的体积 [gzip < 30k]
 
 ## Why？
 
@@ -59,11 +64,11 @@ const routes = (
 
 ## Modules
 
-- [x] **@typeclient/core** 核心模块
-- [x] **@typeclient/react** react支持的驱动
-- [ ] **@typeclient/vue** vue支持的驱动
-- [x] **@typeclient/axios** axios请求支持
-- [x] **@typeclient/responsive** 持久化存储支持 `localStorage` `sessionStorage` and `cookie`
+1. <input type="checkbox" checked disabled /> **@typeclient/core** 核心模块
+1. <input type="checkbox" checked disabled /> **@typeclient/react** react支持的驱动
+1. <input type="checkbox" disabled /> **@typeclient/vue** vue支持的驱动
+1. <input type="checkbox" checked disabled /> **@typeclient/axios** axios请求支持
+1. <input type="checkbox" checked disabled /> **@typeclient/responsive** 持久化存储支持 `localStorage` `sessionStorage` and `cookie`
 
 > `@typeclient/vue` 将在vue3发布正式版后开源。
 
@@ -73,10 +78,6 @@ const routes = (
 - [TypeClientReactTemplate](https://github.com/flowxjs/TypeClientReactTemplate) react项目模板仓库
 
 ## Preview
-
-先看一个例子：
-
-[![Edit flowxjs/TypeClientReactTemplate](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/flowxjs/TypeClientReactTemplate/tree/master/?fontsize=14&hidenavigation=1&theme=dark)
 
 我们可以优先预览下它的写法，我们以`React`为例：
 
