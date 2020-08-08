@@ -6,8 +6,8 @@ sidebar: auto
 
 `@typeclient/core` 主要分两部分组成：
 
-- Application 应用主体
-- History 浏览器history
+- **Application** 应用主体
+- **History** 浏览器history
 
 ## 创建一个新的应用
 
@@ -168,13 +168,13 @@ class router {
 
 #### 中间件加载顺序
 
-它是基于洋葱模型而存在，与nodejs生态中的KOA中间件一致。详解
+它是基于洋葱模型而存在，与nodejs生态中的KOA中间件一致。[详解](https://www.jianshu.com/p/c76d9ffd7899)
 
 它与路由主渲染函数组件为同步加载关系，也就是说，主渲染函数组件渲染过程并非在中间件执行之后，而且同步执行的，这样可以保证渲染的非阻塞性。
 
-##### 中间写法
+#### 中间件写法
 
-主要有两种写法
+主要有两种写法：
 
 - 传统中间件写法
 - IOC中间件写法
@@ -255,7 +255,7 @@ class router {
 }
 ```
 
-当前，你可以在class类上引用，表示这个controller下所有路由都进行CustomError局部容错。
+当然，你可以在class类上引用，表示这个controller下所有路由都进行CustomError局部容错。
 
 ```tsx
 import { Route, Controller, useMiddleware } from '@typeclient/core';
