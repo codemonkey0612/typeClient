@@ -2,13 +2,16 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "create": "node scripts/create.js"
+    "create": "node scripts/create.js",
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
   },
   "devDependencies": {
     "inquirer": "^7.3.0",
     "lerna": "^3.20.2",
     "rollup": "^2.18.2",
     "rollup-plugin-typescript2": "^0.27.1",
-    "typescript": "^3.9.6"
+    "typescript": "^3.9.6",
+    "vuepress": "^1.5.3"
   }
 }
