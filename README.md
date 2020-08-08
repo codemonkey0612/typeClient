@@ -10,6 +10,10 @@
 1. 通过事件分发快速构建不同渲染架构的驱动
 1. 轻量的体积
 
+## Document
+
+[Document](https://flowxjs.github.io/TypeClient)
+
 ## Why？
 
 前端路由一般性能不是瓶颈，但是在一些渲染架构上，比如`React`上，在量级非常大的组件下，DIFF就显得非常笨拙：

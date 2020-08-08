@@ -25,7 +25,7 @@ app2.setController(controller2);
 bootstrap();
 ```
 
-#@@ History模式选择
+### History模式选择
 
 默认我们使用`hashchange`的模式来驱动，但是你也可以改变它使用`popstate`模式。
 
