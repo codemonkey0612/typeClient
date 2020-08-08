@@ -3,8 +3,8 @@
   "private": true,
   "scripts": {
     "create": "node scripts/create.js",
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:dev": "vuepress dev wiki",
+    "docs:build": "vuepress build wiki"
   },
   "devDependencies": {
     "inquirer": "^7.3.0",
