@@ -54,6 +54,42 @@ class ABC {
 const ctx = useApplicationContext() as Context;
 ```
 
+### useReactiveMemoState
+
+对于任意被`@vue/reactivity`包裹过的对象都将返回响应式的缓存数据对象供react内部使用。
+
+```tsx
+import { reactive, ref } from '@vue/reactivity';
+const state = reactive({ count: 0 });
+const num = ref(100);
+const { count, num } = useReactiveMemoState(() => {
+  return {
+    count: state.count,
+    num: num.value
+  }
+}, [state.count, num.value]);
+return <div>{count} - {num}</div>
+```
+
+### useContextMemoState
+
+返回请求级别ctx上缓存数据的响应。
+
+```tsx
+@injectable()
+class ABC {
+  test() {
+    const { count, status } = useContextMemoState((ctx: Context) => {
+      return {
+        count: ctx.state.count,
+        status: ctx.status.value
+      }
+    }, [ctx.state.count, ctx.status.value]);
+    return <div>{count} - {status}</div>
+  }
+}
+```
+
 ## IOCComponent
 
 为react提供一种新的组件模式

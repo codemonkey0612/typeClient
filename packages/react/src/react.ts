@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Application, TApplicationOptions, Context, TAnnotationScanerMethod } from '@typeclient/core';
 import { TReactApplicationLifecycles } from './lifecycle';
 import { CreateGlobalComponent } from './components/global';
 import { NAMESPACE } from './annotations';
-import { ContextProvider, useContextState } from './reactive';
+import { ContextProvider, useReactiveState } from './reactive';
 
 export type TReactApplicationOptions = TApplicationOptions & { el: HTMLElement };
 
@@ -46,7 +46,7 @@ export class ReactApplication extends Application<TReactApplicationLifecycles> {
     if (!fcs.has(key)) {
       const Component = server[key].bind(server);
       const Checker = (ctx: Context) => {
-        const { status, error } = useContextState(() => ({ 
+        const { status, error } = useReactiveState(() => ({ 
           status: ctx.status.value,
           error: ctx.error.value,
         }));
