@@ -90,6 +90,17 @@ class ABC {
 }
 ```
 
+### useContextEffect
+
+路由生命周期，类似组件生命周期。它接受一个回调函数，表示路由`created`生命周期，如果返回一个回调函数，则表示路由`destroy`生命周期。
+
+```tsx
+useContextEffect(() => {
+  console.log('router ready');
+  return () => console.log('router destroyed');
+})
+```
+
 ## IOCComponent
 
 为react提供一种新的组件模式
