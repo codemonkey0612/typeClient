@@ -1,6 +1,6 @@
 {
   "name": "@typeclient/axios",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "typeclient axios",
   "author": "",
   "homepage": "https://github.com/flowxjs/TypeClient",
@@ -21,7 +21,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@typeclient/core": "^1.1.15",
+    "@typeclient/core": "^1.1.16",
     "axios": "^0.19.2"
   }
 }
