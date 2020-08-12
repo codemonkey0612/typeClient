@@ -4,7 +4,7 @@ import { Request } from './request';
 
 export type TApplicationLifeCycle = {
   'Application.onError': {
-    arguments: [Error, Context],
+    arguments: [Error, Context?],
     return: any
   },
   'Application.onNotFound': {
