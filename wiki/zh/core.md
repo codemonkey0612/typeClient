@@ -118,6 +118,16 @@ app.replace('/test')
 app.reload();
 ```
 
+## 全局中间件
+
+我们可以通过对全局配置中间件来强调每个路由都经过这些流程。
+
+```ts
+app.use(async (ctx, next) => await next());
+// or
+app.use(iOCMiddleware);
+```
+
 ## Controller路由引导类
 
 路由类定义以class为基础，也就是说，所有的controller都是class类型的，并且，需要使用注解`@Controller`来包裹。
@@ -281,6 +291,22 @@ class router {
 ```
 
 State中传荣object或者function的区别在于，如果是function类型，那么它将每次重新重建新的数据对象，反之，数据将被缓存，在相同数据结构的对象上不断累积变化。
+
+**mergeState** 整合多个数据源为一个数据源
+
+```tsx
+import { Route, Controller, State, mergeState } from '@typeclient/core';
+@Controller()
+class router {
+  @Route('/test')
+  @State(mergeState(
+    () => ({ count: 0 }),
+    () => ({ a: 0 }),
+    () => ({ b: 0 })
+  ))
+  test() {}
+}
+```
 
 ### 使用代理跳转模式
 

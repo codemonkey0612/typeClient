@@ -9,17 +9,8 @@ export declare class MiddlewareTransform<C extends Context> {
 
 export class MiddlewareTransforms<C extends Context> {
   public compose(ctx: C, method: TAnnotationScanerMethod) {
-    const classModules = this.getMiddlewareIndefiners(method);
-    const middlewares = classModules.map(classModule => {
-      if ((classModule as TClassIndefiner<MiddlewareTransform<C>>).prototype && (classModule as TClassIndefiner<MiddlewareTransform<C>>).prototype.use) {
-        return async (ctx: C, next: ComposeNextCallback) => {
-          const target = TypeClientContainer.get<MiddlewareTransform<C>>(classModule);
-          if (!target) throw new Error('Cannot find the ioc object on TypeClientContainer.')
-          await target.use(ctx, next);
-        }
-      }
-      return classModule;
-    });
+    const classModules = this.getMiddlewareIndefiners(ctx, method);
+    const middlewares = this.generateMiddlewares(...classModules);
     middlewares.push(async (ctx, next) => {
       ctx.status.value = 200;
       await next();
@@ -27,10 +18,26 @@ export class MiddlewareTransforms<C extends Context> {
     return Compose(middlewares as ComposeMiddleware<C>[])(ctx);
   }
 
-  private getMiddlewareIndefiners(method: TAnnotationScanerMethod) {
+  private getMiddlewareIndefiners(ctx: C, method: TAnnotationScanerMethod) {
     const parent = method.meta.parent;
     const classHttpMiddlewares = parent.got(NAMESPACE.MIDDLEWARE, []);
     const propertyHttpMiddlewares = method.meta.got(NAMESPACE.MIDDLEWARE, []);
-    return [].concat(classHttpMiddlewares).concat(propertyHttpMiddlewares) as (TClassIndefiner<MiddlewareTransform<C>> | ComposeMiddleware<C>)[];
+    const globalMiddlewares = this.generateMiddlewares(...ctx.app.middlewares);
+    return globalMiddlewares
+      .concat(classHttpMiddlewares)
+      .concat(propertyHttpMiddlewares) as (TClassIndefiner<MiddlewareTransform<C>> | ComposeMiddleware<C>)[];
+  }
+
+  private generateMiddlewares<M extends TClassIndefiner<MiddlewareTransform<C>>>(...classModules: (ComposeMiddleware<C> | M)[]): ComposeMiddleware<C>[] {
+    return classModules.map(classModule => {
+      if ((classModule as TClassIndefiner<MiddlewareTransform<C>>).prototype && (classModule as TClassIndefiner<MiddlewareTransform<C>>).prototype.use) {
+        return async (ctx: C, next: ComposeNextCallback) => {
+          const target = TypeClientContainer.get<MiddlewareTransform<C>>(classModule);
+          if (!target) throw new Error('Cannot find the ioc object on TypeClientContainer.')
+          await target.use(ctx, next);
+        }
+      }
+      return classModule as ComposeMiddleware<C>;
+    });
   }
 }

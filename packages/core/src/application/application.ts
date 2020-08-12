@@ -9,6 +9,8 @@ import { ContextEventEmitter } from './events';
 import { TApplicationLifeCycle } from './lifecycle';
 import { ContextTransforming as transforming } from './transform';
 import { Request } from './request';
+import { ComposeMiddleware } from './compose';
+import { MiddlewareTransform } from './transforms';
 
 type TNotFound = TApplicationLifeCycle['Application.onNotFound'];
 type TError = TApplicationLifeCycle['Application.onError'];
@@ -28,6 +30,7 @@ export class Application<S extends {
   public context: Context;
   public readonly prefix: string;
   private readonly router: Router;
+  public readonly middlewares: any[] = [];
 
   // history reload action
   public readonly reload = reload;
@@ -43,6 +46,11 @@ export class Application<S extends {
     this.prefix = options.prefix || '/';
     this.router = new Router(options);
     this.subscribe();
+  }
+
+  use<C extends Context, T extends MiddlewareTransform<C>, M extends TClassIndefiner<T>>(classModule: ComposeMiddleware<C> | M) {
+    this.middlewares.push(classModule);
+    return this;
   }
 
   /**
