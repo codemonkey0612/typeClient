@@ -3,6 +3,7 @@ import { ExceptionTransfrom } from "../../application/transforms/expception";
 import { Context } from "../../application";
 import { useInject } from "./inject";
 import { NAMESPACE } from "./namespace";
+import { injectable } from 'inversify';
 
 export function useException<
   C extends Context, 
@@ -17,3 +18,5 @@ export function useException<
     }
   }
 }
+
+export const Exception = injectable;

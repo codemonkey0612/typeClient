@@ -49,6 +49,9 @@ export class Application<S extends {
   }
 
   use<C extends Context, T extends MiddlewareTransform<C>, M extends TClassIndefiner<T>>(classModule: ComposeMiddleware<C> | M) {
+    if ((classModule as M).prototype && (classModule as M).prototype.use) {
+      this.injectClassModules(classModule as M);
+    }
     this.middlewares.push(classModule);
     return this;
   }

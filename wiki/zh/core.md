@@ -202,9 +202,9 @@ async function (ctx, next) {
 
 ```ts
 import { injectable, inject } from 'inversify';
-import { MiddlewareTransform, ComposeNextCallback } from '@typeclient/core';
+import { MiddlewareTransform, ComposeNextCallback, Middleware } from '@typeclient/core';
 
-@injectable()
+@Middleware()
 export class DemoMiddleware<T extends Context> implements MiddlewareTransform<T> {
   @inject(Service) private readonly Service: Service;
   async use(ctx: T, next: ComposeNextCallback) {
@@ -244,8 +244,8 @@ class router {
 它提供一种基于请求的局部容错，与app.onError一样，需要返回一个页面代码。
 
 ```tsx
-import { ExceptionTransfrom } from '@typeclient/core';
-@injectable()
+import { ExceptionTransfrom, Exception } from '@typeclient/core';
+@Exception()
 class CustomError implements ExceptionTransfrom {
   catch(e: Error) {
     return <h1>{e.message}</h1>

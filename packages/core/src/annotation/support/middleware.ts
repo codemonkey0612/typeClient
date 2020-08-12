@@ -4,6 +4,7 @@ import { TClassIndefiner, ClassMetaCreator, MethodMetaCreator } from "../impleme
 import { MiddlewareTransform } from "../../application/transforms/middleware";
 import { useInject } from "./inject";
 import { NAMESPACE } from "./namespace";
+import { injectable } from "inversify";
 
 export function useMiddleware<
   C extends Context,
@@ -19,3 +20,5 @@ export function useMiddleware<
     }
   }
 }
+
+export const Middleware = injectable;
