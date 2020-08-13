@@ -11,7 +11,14 @@ export function useMiddleware<
   M extends TClassIndefiner<MiddlewareTransform<C>>
 >(...args: (ComposedMiddleware<C> | M)[]) {
   return <T>(target: Object, property?: string | symbol, descripor?: TypedPropertyDescriptor<T>) => {
-    const classModules = args.filter(arg => arg.prototype && arg.prototype.use) as M[];
+    const classModules = args.filter(arg => {
+      const isMiddlewareLike = !!(arg.prototype && arg.prototype.use);
+      if (!isMiddlewareLike) return false;
+      const instance = ClassMetaCreator.instance(arg);
+      const isMiddleware = instance.got(NAMESPACE.MIDDLEWARE, false);
+      if (!isMiddleware) return false;
+      return true;
+    }) as M[];
     useInject(...classModules)(target, property, descripor);
     if (!property) {
       ClassMetaCreator.unshift(NAMESPACE.MIDDLEWARE, ...args)(target as Function);
@@ -21,4 +28,9 @@ export function useMiddleware<
   }
 }
 
-export const Middleware = injectable;
+export function Middleware() {
+  return ClassMetaCreator.join(
+    ClassMetaCreator.define(NAMESPACE.MIDDLEWARE, true),
+    injectable()
+  )
+}

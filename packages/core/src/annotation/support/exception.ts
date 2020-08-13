@@ -10,13 +10,22 @@ export function useException<
   T extends ExceptionTransfrom<C>
 >(error: TClassIndefiner<T>) {
   return <T>(target: Object, property?: string | symbol, descripor?: TypedPropertyDescriptor<T>) => {
-    useInject(error)(target, property, descripor);
-    if (!property) {
-      ClassMetaCreator.define(NAMESPACE.EXCEPTION, error)(target as Function);
-    } else {
-      MethodMetaCreator.define(NAMESPACE.EXCEPTION, error)(target, property, descripor);
+    const instance = ClassMetaCreator.instance(error);
+    const isException = instance.got(NAMESPACE.EXCEPTION, false);
+    if (isException) {
+      useInject(error)(target, property, descripor);
+      if (!property) {
+        ClassMetaCreator.define(NAMESPACE.EXCEPTION, error)(target as Function);
+      } else {
+        MethodMetaCreator.define(NAMESPACE.EXCEPTION, error)(target, property, descripor);
+      }
     }
   }
 }
 
-export const Exception = injectable;
+export function Exception() {
+  return ClassMetaCreator.join(
+    ClassMetaCreator.define(NAMESPACE.EXCEPTION, true),
+    injectable()
+  )
+}

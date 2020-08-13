@@ -1,31 +1,28 @@
 import React from 'react';
 import { ClassMetaCreator } from "@typeclient/core";
 import { injectable } from 'inversify';
-const stacks = new WeakMap<any, Function>();
+import {  NAMESPACE} from './namespace';
+
+const stacks = new WeakMap<object, React.FunctionComponent<any>>();
+
 export function Component() {
   return ClassMetaCreator.join(
-    injectable(),
     (target: any) => {
       const fn = target.prototype.render;
       if (!fn) throw new Error('component must be a render function in class object');
-      
-      Object.defineProperty(target.prototype, 'render', {
-        get() {
-          if (!stacks.has(target)) {
-            stacks.set(target, fn.bind(this));
-          }
-          return stacks.get(target);
-        }
-      });
-
-      Object.defineProperty(target, '__isTypedComponent__', {
-        get: () => true,
-      });
-    }
+    },
+    injectable(),
+    ClassMetaCreator.define(NAMESPACE.COMPONENT, true)
   )
 }
 
 export declare class ComponentTransform {
-  static readonly __isTypedComponent__: true;
   public render(props: any): React.ReactElement;
+}
+
+export function useComponent<T extends ComponentTransform>(component: T): T['render'] {
+  if (stacks.has(component)) return stacks.get(component);
+  const fn = component.render.bind(component);
+  stacks.set(component, fn);
+  return fn;
 }

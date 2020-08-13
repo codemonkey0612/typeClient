@@ -1,5 +1,5 @@
 import React from 'react';
-import { ReactApplication, useContextState, Template, Component, useContextEffect, ComponentTransform } from '../src';
+import { ReactApplication, useContextState, Template, Component, useContextEffect, ComponentTransform, useComponent } from '../src';
 import { bootstrp, Controller, Route, State, Context, useMiddleware, useException, usePopStateHistoryMode, Redirect } from '@typeclient/core';
 import { injectable, inject } from 'inversify';
 import { MiddlewareTransform } from '@typeclient/core/dist/application/transforms/middleware';
@@ -21,7 +21,7 @@ class Abc {
 @Component()
 class ttt implements ComponentTransform {
   @inject(Abc) private Abc: Abc;
-  public render(props: React.PropsWithoutRef<{}>) {
+  public render(props: React.PropsWithoutRef<{ x?: number}>) {
     return React.createElement('div', null, '123evio-' + this.Abc.abc());
   }
 }
@@ -112,7 +112,7 @@ class CustomController {
       }
     })
 
-    const Cmp = this.ttt.render
+    const Cmp = useComponent(this.ttt)
 
     return React.createElement(React.Fragment, null, 
       React.createElement('span', null, 'status:' + status),
@@ -131,7 +131,7 @@ class CustomController {
 
   @Route('/ooo')
   sss(ctx: Context) {
-    const Val = this.ttt.render;
+    const Val = useComponent(this.ttt);
     useContextEffect(() => {
       console.log('in mount', ctx.req.pathname);
       return () => {
