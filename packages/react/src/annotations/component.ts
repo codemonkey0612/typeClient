@@ -21,6 +21,10 @@ export declare class ComponentTransform {
 }
 
 export function useComponent<T extends ComponentTransform>(component: T): T['render'] {
+  const constructor = component.constructor;
+  const instance = ClassMetaCreator.instance(constructor);
+  const isComponent = instance.got(NAMESPACE.COMPONENT, false);
+  if (!isComponent) throw new Error('component is not an iocComponent');
   if (stacks.has(component)) return stacks.get(component);
   const fn = component.render.bind(component);
   stacks.set(component, fn);

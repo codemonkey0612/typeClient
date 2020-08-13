@@ -121,13 +121,14 @@ class ttt implements ComponentTransform {
 ```tsx
 import { inject } from 'inversify';
 import { Route, Controller, useMiddleware } from '@typeclient/core';
+import { useComponent } from '@typeclient/react';
 @Controller()
 @useMiddleware(DemoMiddleware)
 class router {
   @inject(ttt) private readonly ttt: ttt;
   @Route('/test')
   test() {
-    const Cmp = this.ttt.render;
+    const Cmp = useComponent(this.ttt);
     return <Cmp />
   }
 }
