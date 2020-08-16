@@ -9,7 +9,7 @@ export function useContextEffect(callback: () => (() => void) | void) {
       case 200:
         const unMount = callback();
         if (typeof unMount === 'function') {
-          ctx.$e.emit('context.destroy', unMount);
+          ctx.$e.on('context.destroy', unMount);
         }
         break;
       case 100:
