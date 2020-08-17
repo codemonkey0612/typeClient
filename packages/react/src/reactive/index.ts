@@ -1,11 +1,10 @@
 import React, { useContext } from 'react';
-import { useForceUpdate, useEffection } from './effect';
 import { Context } from '@typeclient/core';
+import { useReactiveState } from '@typeclient/react-effect';
 
 type Selector<T, S> = (store: T) => S;
 
 const StoreContext = React.createContext<any>(null);
-
 const useStoreContext = () => {
   const contextValue = useContext(StoreContext);
   if (!contextValue) {
@@ -15,18 +14,6 @@ const useStoreContext = () => {
   }
   return contextValue;
 };
-
-export const useReactiveState = <S>(selector: () => S): S => {
-  const forceUpdate = useForceUpdate();
-  const effection = useEffection(selector, {
-    scheduler: job => {
-      if (job() === undefined) return;
-      forceUpdate();
-    },
-    lazy: true,
-  });
-  return effection();
-}
 
 /**
  * 在组件中读取全局状态
@@ -42,3 +29,4 @@ export function useApplicationContext<T extends Context>() {
   return useStoreContext() as T;
 }
 export * from './LifeHook';
+export * from '@typeclient/react-effect';
