@@ -1,6 +1,6 @@
 import { useApplicationContext } from ".";
-import { useReactiveState } from '@typeclient/react-effect';
-import React, { useEffect, useMemo } from "react";
+import { useReactiveMemoState } from '@typeclient/react-effect';
+import React, { useEffect } from "react";
 import { Context } from "@typeclient/core";
 
 export function useContextEffect(callback: () => (() => void) | void) {
@@ -18,10 +18,6 @@ export function useContextEffect(callback: () => (() => void) | void) {
         break;
     }
   }, []);
-}
-
-export function useReactiveMemoState<S>(feedback: () => S, deps: React.DependencyList): S {
-  return useMemo(() => useReactiveState(feedback), deps);
 }
 
 export function useContextMemoState<T extends Context, S>(feedback: (ctx: T) => S, deps: React.DependencyList): S {

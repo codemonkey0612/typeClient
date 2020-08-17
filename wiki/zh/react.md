@@ -27,6 +27,8 @@ const { count, num } = useReactiveState(() => {
 return <div>{count} - {num}</div>
 ```
 
+> 也可以通过 `import { useReactiveState } from '@typeclient/react-effect'`获得。
+
 ### useContextState
 
 返回请求级别ctx上数据的响应。
@@ -70,6 +72,8 @@ const { count, num } = useReactiveMemoState(() => {
 }, [state.count, num.value]);
 return <div>{count} - {num}</div>
 ```
+
+> 也可以通过 `import { useReactiveMemoState } from '@typeclient/react-effect'`获得。
 
 ### useContextMemoState
 

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useForceUpdate, useEffection } from './effect';
 
 export const useReactiveState = <S>(selector: () => S): S => {
@@ -10,4 +11,8 @@ export const useReactiveState = <S>(selector: () => S): S => {
     lazy: true,
   });
   return effection();
+}
+
+export function useReactiveMemoState<S>(feedback: () => S, deps: React.DependencyList): S {
+  return useMemo(() => useReactiveState(feedback), deps);
 }
