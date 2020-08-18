@@ -16,6 +16,7 @@ export class ReactApplication extends Application<TReactApplicationLifecycles> {
     this.on('Application.onRender', (ctx, server, key, metadata) => this.applicationRendering(ctx, server, key, metadata));
     this.on('Application.onErrorRender', (node: any) => {
       this.trigger('React.component', () => () => node);
+      // props 传递必须在后面，以免前一个组件直接被替换掉props而报错
       this.trigger('React.props', null);
     });
   }
