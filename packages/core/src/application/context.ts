@@ -3,6 +3,10 @@ import { Request } from './request';
 import { Application } from './application';
 import { reactive, Ref, UnwrapRef, ref } from '@vue/reactivity';
 
+type TContextSideEffect = { 
+  type: 'redirect' | 'replace' | 'reload',
+  args: any[]
+}
 type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 let index = 0;
 
@@ -18,6 +22,7 @@ export class Context<T extends object = {}> {
   public error: Ref<any> = ref(null);
   public status: Ref<100 | 200 | 500 | 900> = ref(100);
   private readonly rejections: ((e?: any) => void)[] = [];
+  private sideEffects: TContextSideEffect[] = [];
 
   constructor(app: Application<any>, req: Request, data: T) {
     this.app = app;
@@ -67,24 +72,27 @@ export class Context<T extends object = {}> {
   }
 
   public readonly redirect = (url: string, title?: string) => {
-    if (this.status.value === 100) {
-      this.$e.emit('Application.redirection', this);
-    }
-    return this.app.redirect(url, title);
+    this.sideEffects.push({
+      type: 'redirect',
+      args: [url, title],
+    });
+    return this;
   }
 
   public readonly replace = (url: string, title?: string) => {
-    if (this.status.value === 100) {
-      this.$e.emit('Application.redirection', this);
-    }
-    return this.app.replace(url, title);
+    this.sideEffects.push({
+      type: 'replace',
+      args: [url, title],
+    });
+    return this;
   }
 
   public readonly reload = () => {
-    if (this.status.value === 100) {
-      this.$e.emit('Application.redirection', this);
-    }
-    this.app.reload();
+    this.sideEffects.push({
+      type: 'reload',
+      args: [],
+    });
+    return this;
   }
 
   public readonly useEffect = (callback: () => (() => void) | void) => {
@@ -94,5 +102,15 @@ export class Context<T extends object = {}> {
         return this.$e.on('context.destroy', unMount);
       }
     });
+  }
+
+  public executeSideEffects() {
+    for (let i = 0; i < this.sideEffects.length; i++) {
+      const { type, args } = this.sideEffects[i];
+      if (typeof this.app[type] === 'function') {
+        // @ts-ignore
+        this.app[type](...args);
+      }
+    }
   }
 }

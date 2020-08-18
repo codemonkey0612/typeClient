@@ -126,6 +126,7 @@ export class Application<S extends {
     if (uri) {
       const req = new Request(uri);
       const handler = this.router.lookup(req.pathname);
+      const prevContext = this.context;
       
       // Not found.
       // You can deal with Application.onNotFound by return a value.
@@ -134,12 +135,12 @@ export class Application<S extends {
         this.trigger('Application.onNotFound', req)
       );
 
-      if (this.context) {
+      if (prevContext) {
         // deal with old context
         // force it destory.
-        switch (this.context.status.value) {
-          case 100: this.context.destroy(); break;
-          case 200: this.context.$e.emit('context.destroy'); break;
+        switch (prevContext.status.value) {
+          case 100: prevContext.destroy(); break;
+          case 200: prevContext.$e.emit('context.destroy'); break;
         }
       }
       req.params = handler.params || {};
@@ -235,10 +236,12 @@ export class Application<S extends {
               );
             }
           } else {
-            // use async middleware process to change states.
-            transforming(context, method);
-            // use render hooks
-            this.trigger('Application.onRender', context, server, key, method);
+            Promise.all([
+              // use async middleware process to change states.
+              transforming(context, method),
+               // use render hooks
+              Promise.resolve(this.trigger('Application.onRender', context, server, key, method))
+            ]).then(() => context.executeSideEffects());
           }
         })
       });

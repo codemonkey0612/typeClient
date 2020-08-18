@@ -26,9 +26,5 @@ export type TApplicationLifeCycle = {
   'Application.onHashAnchorChange': {
     arguments: [HTMLElement],
     return: void,
-  },
-  'Application.redirection': {
-    arguments: [Context],
-    return: void,
   }
 }
