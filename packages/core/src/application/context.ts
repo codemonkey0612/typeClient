@@ -67,14 +67,25 @@ export class Context<T extends object = {}> {
   }
 
   public readonly redirect = (url: string, title?: string) => {
+    if (this.status.value === 100) {
+      this.$e.emit('Application.redirection', this);
+    }
     return this.app.redirect(url, title);
   }
 
   public readonly replace = (url: string, title?: string) => {
+    if (this.status.value === 100) {
+      this.$e.emit('Application.redirection', this);
+    }
     return this.app.replace(url, title);
   }
 
-  public readonly reload = () => this.app.reload();
+  public readonly reload = () => {
+    if (this.status.value === 100) {
+      this.$e.emit('Application.redirection', this);
+    }
+    this.app.reload();
+  }
 
   public readonly useEffect = (callback: () => (() => void) | void) => {
     return this.$e.on('context.create', () => {

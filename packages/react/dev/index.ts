@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReactApplication, useContextState, Template, Component, useContextEffect, ComponentTransform, useComponent } from '../src';
-import { bootstrp, Controller, Route, State, Context, useMiddleware, useException, usePopStateHistoryMode, Redirect } from '@typeclient/core';
+import { bootstrp, Controller, Route, State, Context, useMiddleware, useException, usePopStateHistoryMode, Redirect, Middleware, Exception } from '@typeclient/core';
 import { injectable, inject } from 'inversify';
 import { MiddlewareTransform } from '@typeclient/core/dist/application/transforms/middleware';
 import { ComposeNextCallback } from '@typeclient/core/dist/application/compose';
@@ -47,42 +47,45 @@ interface TCustomRouteData {
   count: number
 }
 
-@injectable()
+@Exception()
 class CustomError<T extends Context<TCustomRouteData>> implements ExceptionTransfrom<T> {
   catch(e: Error) {
     return React.createElement('h1', null, e.message);
   }
 }
 
-@injectable()
+@Middleware()
 class testMiddleware<T extends Context<TCustomRouteData>> implements MiddlewareTransform<T> {
   async use(ctx: T, next: ComposeNextCallback) {
-    console.log(Number(ctx.query.a), 'in middleware')
-    await new Promise((resolve, reject) => {
-      let i = 0;
-      // return reject(new Error('catch error2222'))
-      const timer = setInterval(() => {
-        if (i > 3) {
-          console.log(Number(ctx.query.a), 'setted data')
-          clearInterval(timer);
-          resolve();
-          unbind();
-        } 
-        // else if (i > 5) {
-        //   unbind();
-        //   clearInterval(timer);
-        //   reject(new Error('catch error2222'))
-        // }
-        else {
-          ctx.state.count = i++;
-        }
-      }, 1000)
-      const unbind = ctx.useReject(() => {
-        clearTimeout(timer);
-        reject();
-      });
-    });
-    await next();
+    // console.log('in')
+    // await next();
+    ctx.redirect('/ooo')
+    // console.log(Number(ctx.query.a), 'in middleware')
+    // await new Promise((resolve, reject) => {
+    //   let i = 0;
+    //   // return reject(new Error('catch error2222'))
+    //   const timer = setInterval(() => {
+    //     if (i > 3) {
+    //       console.log(Number(ctx.query.a), 'setted data')
+    //       clearInterval(timer);
+    //       resolve();
+    //       unbind();
+    //     } 
+    //     else if (i > 5) {
+    //       unbind();
+    //       clearInterval(timer);
+    //       ctx.redirect('/ooo')
+    //     }
+    //     else {
+    //       ctx.state.count = i++;
+    //     }
+    //   }, 1000)
+    //   const unbind = ctx.useReject(() => {
+    //     clearTimeout(timer);
+    //     reject();
+    //   });
+    // });
+    // await next();
   }
 }
 
