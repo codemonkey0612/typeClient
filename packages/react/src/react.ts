@@ -15,8 +15,8 @@ export class ReactApplication extends Application<TReactApplicationLifecycles> {
     this.on('Application.onInit', next => this.applicationWillSetup(options.el, next));
     this.on('Application.onRender', (ctx, server, key, metadata) => this.applicationRendering(ctx, server, key, metadata));
     this.on('Application.onErrorRender', (node: any) => {
-      this.trigger('React.props', null);
       this.trigger('React.component', () => () => node);
+      this.trigger('React.props', null);
     });
   }
 
