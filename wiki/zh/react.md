@@ -105,6 +105,16 @@ useContextEffect(() => {
 })
 ```
 
+### useContextSideEffect
+
+对请求副作用处理，运行在`useContextEffect`之后
+
+```tsx
+useContextSideEffect(() => {
+  console.log('router side effects');
+})
+```
+
 ## IOCComponent
 
 为react提供一种新的组件模式

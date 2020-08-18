@@ -207,7 +207,8 @@ export class Application<S extends {
           if (redirect_url) {
             // It is a Redirection Function.
             // We use output value or redirect_url for redirecting.
-            const result = (server as any)[key](context);
+            // @ts-ignore
+            const result = server[key](context);
             if (result instanceof Promise || isPromise(result)) {
               // when it is a Promise object
               result.then((url: string) => {
