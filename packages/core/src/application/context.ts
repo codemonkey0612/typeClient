@@ -16,9 +16,8 @@ export class Context<T extends object = {}> {
   public readonly $e = mitt();
   public readonly self = this;
   public error: Ref<any> = ref(null);
-  public status: Ref<100 | 200 | 500 | 900> = ref(100);
+  public status: Ref<100 | 200 | 500 | 900 | 302> = ref(100);
   private readonly rejections: ((e?: any) => void)[] = [];
-  private readonly sideEffects: (() => void)[] = [];
 
   constructor(app: Application<any>, req: Request, data: T) {
     this.app = app;
@@ -68,29 +67,30 @@ export class Context<T extends object = {}> {
   }
 
   public readonly redirect = (url: string, title?: string) => {
-    return this.useSideEffect(() => this.app.redirect(url, title));
+    if (this.status.value === 100) {
+      this.status.value = 302;
+      throw () => this.app.redirect(url, title);
+    } else {
+      this.app.redirect(url, title);
+    }
   }
 
   public readonly replace = (url: string, title?: string) => {
-    return this.useSideEffect(() => this.app.replace(url, title));
+    if (this.status.value === 100) {
+      this.status.value = 302;
+      throw () => this.app.replace(url, title);
+    } else {
+      this.app.replace(url, title);
+    }
   }
 
   public readonly reload = () => {
-    return this.useSideEffect(() => this.app.reload());
-  }
-
-  public readonly useSideEffect = (callback: () => void, ignore: boolean = false) => {
     if (this.status.value === 100) {
-      this.sideEffects.push(callback);
-      return () => {
-        const index = this.sideEffects.indexOf(callback);
-        if (index > -1) {
-          this.sideEffects.splice(index, 1);
-        }
-      }
+      this.status.value = 302;
+      throw () => this.app.reload();
+    } else {
+      this.app.reload();
     }
-    !ignore && callback();
-    return () => {};
   }
 
   public readonly useEffect = (callback: () => (() => void) | void) => {
@@ -102,12 +102,5 @@ export class Context<T extends object = {}> {
     }
     this.$e.on('context.create', handler);
     return () => this.$e.off('context.create', handler);
-  }
-
-  public executeSideEffects() {
-    for (let i = 0; i < this.sideEffects.length; i++) {
-      this.sideEffects[i]();
-    }
-    this.sideEffects.length = 0;
   }
 }

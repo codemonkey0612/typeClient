@@ -9,13 +9,17 @@ export declare class MiddlewareTransform<C extends Context> {
 
 export class MiddlewareTransforms<C extends Context> {
   public compose(ctx: C, method: TAnnotationScanerMethod) {
-    const classModules = this.getMiddlewareIndefiners(ctx, method);
-    const middlewares = this.generateMiddlewares(...classModules);
-    middlewares.push(async (ctx, next) => {
+    return this.common(ctx, method, async (ctx, next) => {
       ctx.status.value = 200;
       await next();
     });
-    return Compose(middlewares as ComposeMiddleware<C>[])(ctx);
+  }
+
+  public common(ctx: C, method: TAnnotationScanerMethod, callback?: ComposeMiddleware) {
+    const classModules = this.getMiddlewareIndefiners(ctx, method);
+    const middlewares = this.generateMiddlewares(...classModules);
+    callback && middlewares.push(callback);
+    return Compose(middlewares)(ctx);
   }
 
   private getMiddlewareIndefiners(ctx: C, method: TAnnotationScanerMethod) {

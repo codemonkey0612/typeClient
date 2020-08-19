@@ -434,17 +434,3 @@ ctx.useEffect(() => {
   }
 })
 ```
-
-### ctx.useSideEffect
-
-`ctx.useSideEffect(callback: () => void, ignore?: boolean)`
-
-请求副作用处理，一般指在请求流程结束后需要处理的副作用，比如说跳转或者自定义的处理。
-
-```tsx
-ctx.useSideEffect(() => {
-  // ...
-})
-```
-
-> 副作用处理一般仅在`ctx.status.value === 100` 的时候有效，否则可以通过第二个参数制定是否立即执行。

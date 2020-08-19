@@ -22,8 +22,3 @@ export function useContextMemoState<T extends Context, S>(feedback: (ctx: T) => 
   const ctx = useApplicationContext() as T;
   return useReactiveMemoState(() => feedback(ctx), deps);
 }
-
-export function useContextSideEffect(callback: () => void) {
-  const ctx = useApplicationContext();
-  useEffect(() => ctx.useSideEffect(callback, true), []);
-}

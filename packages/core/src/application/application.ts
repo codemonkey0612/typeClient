@@ -7,7 +7,7 @@ import { Context } from './context';
 import { createNextTick } from '../history/next-tick';
 import { ContextEventEmitter } from './events';
 import { TApplicationLifeCycle } from './lifecycle';
-import { ContextTransforming as transforming } from './transform';
+import { ContextTransforming as transforming, RedirectionTransforing as redrecting } from './transform';
 import { Request } from './request';
 import { ComposeMiddleware } from './compose';
 import { MiddlewareTransform } from './transforms';
@@ -207,42 +207,19 @@ export class Application<S extends {
           if (redirect_url) {
             // It is a Redirection Function.
             // We use output value or redirect_url for redirecting.
-            // @ts-ignore
-            const result = server[key](context);
-            if (result instanceof Promise || isPromise(result)) {
-              // when it is a Promise object
-              result.then((url: string) => {
-                if (url) return context.replace(url);
-                if (typeof redirect_url === 'string') {
-                  return context.replace(redirect_url);
-                }
-              }).catch((e: Error) => {
-                return this.trigger(
-                  'Application.onErrorRender', 
-                  this.trigger('Application.onError', e, context)
-                );
-              })
-            } else if (typeof result === 'string') {
-              // it has return value
-              context.replace(result);
-            } else if (typeof redirect_url === 'string') {
-              // use a default value
-              context.replace(redirect_url);
-            } else {
-              // throw error.
+            redrecting(context, method, server, key, redirect_url).catch(e => {
               this.trigger(
                 'Application.onErrorRender', 
-                this.trigger('Application.onError', 
-                  new Error('Redirection Function must return a value of string.'), context)
+                this.trigger('Application.onError', e, context)
               );
-            }
+            })
           } else {
-            Promise.all([
-              // use async middleware process to change states.
-              transforming(context, method),
-               // use render hooks
-              Promise.resolve(this.trigger('Application.onRender', context, server, key, method))
-            ]).then(() => context.executeSideEffects());
+            transforming(context, method, () => {
+              return Promise.resolve(this.trigger(
+                'Application.onRender', 
+                context, server, key, method
+              ));
+            });
           }
         })
       });
@@ -275,10 +252,4 @@ export class Application<S extends {
   public replace(url: string, title?: string) {
     return replace(this.urlencode(url), title);
   }
-}
-
-function isPromise(obj: any) {
-  return !!obj &&
-    (typeof obj === 'object' || typeof obj === 'function') &&
-    ((obj.constructor && obj.constructor.name === 'Promise') || typeof obj.then === 'function')
 }
