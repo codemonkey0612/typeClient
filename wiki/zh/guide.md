@@ -119,6 +119,7 @@ React端：
 ```bash
 $ git clone git@github.com:flowxjs/TypeClientReactTemplate.git
 $ cd TypeClientReactTemplate
+$ rm -rf .git
 $ npm ci
 $ npm start
 ```

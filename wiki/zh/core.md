@@ -434,3 +434,27 @@ ctx.useEffect(() => {
   }
 })
 ```
+
+### ctx.setTimeout
+
+为了防止未来得及回收的timer导致程序产生副作用，特在`useReject`的基础上封装了`setTimeout`
+
+```ts
+const clearTimer = ctx.setTimeout(() => {}, 1000);
+// clear timer
+clearTimer();
+```
+
+返回一个清除计时器的函数。
+
+### ctx.setInterval
+
+为了防止未来得及回收的timer导致程序产生副作用，特在`useReject`的基础上封装了`setInterval`
+
+```ts
+const clearTimer = ctx.setInterval(() => {}, 1000);
+// clear timer
+clearTimer();
+```
+
+返回一个清除计时器的函数。
