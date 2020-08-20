@@ -103,4 +103,42 @@ export class Context<T extends object = {}> {
     this.$e.on('context.create', handler);
     return () => this.$e.off('context.create', handler);
   }
+
+  setTimeout(callback: (...args: any[]) => void, ms: number, ...args: any[]) {
+    let timer: NodeJS.Timeout = null;
+    let cleared: boolean = false;
+
+    const stop = () => {
+      clearTimeout(timer);
+      cleared = true;
+      timer = null;
+    };
+
+    const unBindHandler = this.useReject(stop);
+
+    timer = setTimeout((...args: any[]) => {
+      unBindHandler();
+      cleared = true;
+      timer = null;
+      callback(...args);
+    }, ms, ...args);
+
+    return () => {
+      if (!cleared) {
+        unBindHandler();
+        stop();
+      }
+    };
+  }
+
+  setInterval(callback: (...args: any[]) => void, ms: number, ...args: any[]) {
+    let timer: NodeJS.Timeout;
+    const stop = () => clearInterval(timer);
+    const unBindHandler = this.useReject(stop);
+    timer = setInterval(callback, ms, ...args);
+    return () => {
+      unBindHandler();
+      stop();
+    }
+  }
 }
