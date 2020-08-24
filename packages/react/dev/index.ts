@@ -119,7 +119,6 @@ class CustomController {
       }
     })
 
-    // @ts-ignore
     const { Provider } = useSlot(ctx.app);
 
     const Cmp = useComponent(this.ttt);

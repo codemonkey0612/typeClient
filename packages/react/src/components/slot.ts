@@ -1,10 +1,10 @@
 import React from 'react';
-import { ReactApplication } from "../react";
+import { Application } from '@typeclient/core';
 
-const ProviderDictionary = new WeakMap<ReactApplication, React.FunctionComponent<{ name: string }>>();
-const ConsumerDictionary = new WeakMap<ReactApplication, React.FunctionComponent<{ name: string }>>();
+const ProviderDictionary = new WeakMap<Application, React.FunctionComponent<{ name: string }>>();
+const ConsumerDictionary = new WeakMap<Application, React.FunctionComponent<{ name: string }>>();
 
-export function useSlot(app: ReactApplication) {
+export function useSlot<T extends Application>(app: T) {
   if (!ProviderDictionary.has(app)) {
     ProviderDictionary.set(app, createProvider(app));
   }
@@ -17,8 +17,9 @@ export function useSlot(app: ReactApplication) {
   }
 }
 
-function createProvider(app: ReactApplication): React.FunctionComponent<{ name: string }> {
+function createProvider<T extends Application>(app: T): React.FunctionComponent<{ name: string }> {
   return (props): null => {
+    // @ts-ignore
     const { subscribe } = React.useContext(app.ReactSlotContext);
     const name = props.name || 'default';
     React.useEffect(() => subscribe(name, props.children), []);
@@ -26,10 +27,11 @@ function createProvider(app: ReactApplication): React.FunctionComponent<{ name: 
   }
 }
 
-function createConsumer(app: ReactApplication): React.FunctionComponent<{ name: string }> {
+function createConsumer<T extends Application>(app: T): React.FunctionComponent<{ name: string }> {
   return props => {
-    const context = React.useContext(app.ReactSlotContext);
-    const children = context.getNode(props.name);
+    // @ts-ignore
+    const { getNode } = React.useContext(app.ReactSlotContext);
+    const children = getNode(props.name);
     return (children || props.children || null) as React.ReactElement;
   }
 }
