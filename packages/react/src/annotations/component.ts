@@ -16,8 +16,8 @@ export function Component() {
   )
 }
 
-export declare class ComponentTransform {
-  public render(props: any): React.ReactElement;
+export declare class ComponentTransform<T = any> {
+  public render(props: T): React.ReactElement;
 }
 
 export function useComponent<T extends ComponentTransform>(component: T): T['render'] {
@@ -25,8 +25,8 @@ export function useComponent<T extends ComponentTransform>(component: T): T['ren
   const instance = ClassMetaCreator.instance(constructor);
   const isComponent = instance.got(NAMESPACE.COMPONENT, false);
   if (!isComponent) throw new Error('component is not an iocComponent');
-  if (stacks.has(component)) return stacks.get(component);
+  if (stacks.has(constructor)) return stacks.get(constructor);
   const fn = component.render.bind(component);
-  stacks.set(component, fn);
+  stacks.set(constructor, fn);
   return fn;
 }

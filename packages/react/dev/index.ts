@@ -1,5 +1,5 @@
-import React from 'react';
-import { ReactApplication, useContextState, Template, Component, useContextEffect, ComponentTransform, useComponent } from '../src';
+import React, { useState } from 'react';
+import { ReactApplication, useContextState, Template, Component, useContextEffect, ComponentTransform, useComponent, useSlot } from '../src';
 import { bootstrp, Controller, Route, State, Context, useMiddleware, useException, usePopStateHistoryMode, Redirect, Middleware, Exception } from '@typeclient/core';
 import { injectable, inject } from 'inversify';
 import { MiddlewareTransform } from '@typeclient/core/dist/application/transforms/middleware';
@@ -31,15 +31,19 @@ class uxx implements ComponentTransform {
   render(props: any) {
     return React.createElement('div', null, 
       React.createElement('h2', null, 'tessssssss'),
-      React.createElement(Slot, props)
     );
   }
 }
 
 function axx(props: any) {
+  const { Consumer } = useSlot(props.app)
   return React.createElement('div', null, 
   React.createElement('h1', null, 'eeee'),
-  React.createElement(Slot, props)
+  React.createElement(Consumer, { name: 'header' }, 'defalut header ====='),
+  React.createElement('hr'),
+  React.createElement(Consumer, { name: 'footer' }, 'defalut footer ====='),
+  React.createElement('hr'),
+  props.children
 );
 }
 
@@ -99,7 +103,7 @@ class CustomController {
 
   @Route()
   @State<TCustomRouteData>(() => ({ count: 0 }))
-  @useMiddleware(testMiddleware)
+  // @useMiddleware(testMiddleware)
   @useException(CustomError)
   test(ctx: Context<TCustomRouteData>) {
     const { count, status } = useContextState(() => {
@@ -115,7 +119,14 @@ class CustomController {
       }
     })
 
-    const Cmp = useComponent(this.ttt)
+    // @ts-ignore
+    const { Provider } = useSlot(ctx.app);
+
+    const Cmp = useComponent(this.ttt);
+
+    // ctx.self.setTimeout(() => {
+    //   setA(true)
+    // }, 3000)
 
     return React.createElement(React.Fragment, null, 
       React.createElement('span', null, 'status:' + status),
@@ -126,9 +137,11 @@ class CustomController {
         },
       }, 'add +'),
       React.createElement('button', {
-        onClick: () => ctx.redirect('/ttt'),
+        onClick: () => ctx.redirect('/ooo'),
       }, 'go'),
-      Cmp ? React.createElement(Cmp) : null
+      Cmp ? React.createElement(Cmp) : null,
+      React.createElement(Provider, { name: 'header' }, React.createElement('span', null, 'evio header setted -----')),
+      React.createElement(Provider, { name: 'footer' }, 'evio footer setted -----')
     )
   }
 
@@ -171,12 +184,5 @@ app.on('Application.onError', (err, ctx) => {
 app.on('Application.onNotFound', (req) => {
   return React.createElement('h2', null, req.pathname);
 })
-export const Slot = app.createSlotter();
 
 bootstrp();
-function ZTemplate(props: any) {
-  return React.createElement('div', null, 
-    React.createElement('h2', null, 'tessssssss'),
-    React.createElement(Slot, props)
-  );
-}
