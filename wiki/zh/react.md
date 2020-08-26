@@ -140,26 +140,28 @@ class router {
 
 ## @Template 模板化
 
-如果使用模板，我们需要在index.tsx文件中使用
+它支持`Slot`插槽模式，我们可以通过`useSlot`获得`Provider`与`Consumer`。它是一种通过消息传送节点片段的模式。
 
 ```ts
-// index.tsx
-// ...
-export Slot = app.createSlotter();
+const { Provider, Consumer } = useSlot(ctx.app);
+<Provider name="foo">provider data</Provider>
+<Consumer name="foo">placeholder</Consumer>
 ```
 
 然后编写一个IOCComponent或者传统组件。
 
 ```tsx
 // template.tsx
-import { Slot } from './index.tsx';
+import { useSlot } from '@typeclient/react';
 @Component()
 class uxx implements ComponentTransform {
   render(props: any) {
-    return React.createElement('div', null, 
-      React.createElement('h2', null, 'tessssssss'),
-      React.createElement(Slot, props)
-    );
+    const { Consumer } = useSlot(props.ctx);
+    return <div>
+      <h2>title</h2>
+      <Consumer name="foo" />
+      {props.children}
+    </div>
   }
 }
 ```
@@ -169,6 +171,7 @@ class uxx implements ComponentTransform {
 ```tsx
 import { inject } from 'inversify';
 import { Route, Controller } from '@typeclient/core';
+import { useSlot } from '@typeclient/react';
 import { uxx } from './template.tsx';
 @Controller()
 @Template(uxx)
@@ -176,8 +179,23 @@ class router {
   @inject(ttt) private readonly ttt: ttt;
   @Route('/test')
   test() {
-    const Cmp = this.ttt.render;
-    return <Cmp />
+    const { Provider } = useSlot(props.ctx);
+    return <div>
+      child ...
+      <Provider name="foo">
+        this is foo slot
+      </Provider>
+    </div>
   }
 }
+```
+
+你能看到的结构如下:
+
+```tsx
+<div>
+  <h2>title</h2>
+  this is foo slot
+  <div>child ...</div>
+</div>
 ```
