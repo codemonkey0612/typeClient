@@ -56,44 +56,6 @@ class ABC {
 const ctx = useApplicationContext() as Context;
 ```
 
-### useReactiveMemoState
-
-对于任意被`@vue/reactivity`包裹过的对象都将返回响应式的缓存数据对象供react内部使用。
-
-```tsx
-import { reactive, ref } from '@vue/reactivity';
-const state = reactive({ count: 0 });
-const num = ref(100);
-const { count, num } = useReactiveMemoState(() => {
-  return {
-    count: state.count,
-    num: num.value
-  }
-}, [state.count, num.value]);
-return <div>{count} - {num}</div>
-```
-
-> 也可以通过 `import { useReactiveMemoState } from '@typeclient/react-effect'`获得。
-
-### useContextMemoState
-
-返回请求级别ctx上缓存数据的响应。
-
-```tsx
-@injectable()
-class ABC {
-  test() {
-    const { count, status } = useContextMemoState((ctx: Context) => {
-      return {
-        count: ctx.state.count,
-        status: ctx.status.value
-      }
-    }, [ctx.state.count, ctx.status.value]);
-    return <div>{count} - {status}</div>
-  }
-}
-```
-
 ### useContextEffect
 
 路由生命周期，类似组件生命周期。它接受一个回调函数，表示路由`created`生命周期，如果返回一个回调函数，则表示路由`destroy`生命周期。
@@ -105,7 +67,7 @@ useContextEffect(() => {
 })
 ```
 
-## IOCComponent
+### useComponent
 
 为react提供一种新的组件模式
 
@@ -122,7 +84,7 @@ class ttt implements ComponentTransform {
 
 调用：
 
-```tsx
+```tsx {10}
 import { inject } from 'inversify';
 import { Route, Controller, useMiddleware } from '@typeclient/core';
 import { useComponent } from '@typeclient/react';
@@ -138,7 +100,7 @@ class router {
 }
 ```
 
-## @Template 模板化
+### useSlot
 
 它支持`Slot`插槽模式，我们可以通过`useSlot`获得`Provider`与`Consumer`。它是一种通过消息传送节点片段的模式。
 
