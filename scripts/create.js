@@ -18,6 +18,8 @@ prompt([{
   const test = createDir(dir, '__tests__');
   createIndexFile(src, data.project);
   createTestFile(test, data.project);
+  createWebpackConfigFile(dir);
+  createDevFiles(dir);
   childprocess.spawn('lerna', ['bootstrap'], {
     stdio: 'inherit'
   });
@@ -60,7 +62,8 @@ function createPackageFile(dir, project) {
       "dist"
     ],
     "scripts": {
-      "build": "rollup -c"
+      "build": "rollup -c",
+      "dev": "../../node_modules/.bin/webpack-dev-server --open --hot --progress --history-api-fallback"
     },
     "publishConfig": {
       "access": "public"
@@ -132,4 +135,74 @@ plugins: [
   ],
 }`;
   fs.writeFileSync(path.resolve(dir, 'rollup.config.js'), template, 'utf8');
+}
+
+function createWebpackConfigFile(dir) {
+  const template = `const path = require('path');
+  const HtmlWebpackPlugin = require('html-webpack-plugin');
+  
+  module.exports = {
+    mode: 'development',
+    entry: {
+      app: resolve('./dev/index.ts')
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        title: 'Development',
+        template: resolve('./dev/index.html')
+      })
+    ],
+    resolve: {
+      extensions: [".ts", ".tsx", ".js"]
+    },
+    module: {
+      rules: [
+        // all files with a \`.ts\` or \`.tsx\` extension will be handled by \`ts-loader\`
+        { test: /\.tsx?$/, loader: "ts-loader" }
+      ]
+    },
+    output: {
+      filename: '[name].bundle.[hash:10].js',
+      path: resolve('dist'),
+      publicPath: '/'
+    },
+    devServer: {
+      historyApiFallback: true,
+      contentBase: resolve('dist'),
+      port: 9000
+    }
+  };
+  
+  function resolve(uri) {
+    return path.resolve(__dirname, uri);
+  }`;
+  fs.writeFileSync(path.resolve(dir, 'webpack.config.js'), template, 'utf8');
+}
+
+function createDevFiles(dir) {
+  const html = `<!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="Expires" content="0">
+      <meta http-equiv="Pragma" content="no-cache">
+      <meta http-equiv="Cache-control" content="no-cache">
+      <meta http-equiv="Cache" content="no-cache">
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+      <title>Monitor test</title>
+    </head>
+    <body>
+      <noscript>
+        <strong>We're sorry but program doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+      </noscript>
+      <div id="app"></div>
+      <!-- built files will be auto injected -->
+    </body>
+  </html>`;
+  const script = `const a = 1;`;
+  const _dir = path.resolve(dir, 'dev');
+  fs.mkdirSync(_dir);
+  fs.writeFileSync(path.resolve(_dir, 'index.html'), html, 'utf8');
+  fs.writeFileSync(path.resolve(_dir, 'index.ts'), script, 'utf8');
 }
