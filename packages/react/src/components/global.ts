@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { ReactApplication } from '../react';
 import { Context } from '@typeclient/core';
 
@@ -25,20 +25,22 @@ export function CreateGlobalComponent(app: ReactApplication): React.FunctionComp
     const [{ template, slot, context }, setComponents] = useState<TReactPortalContext>({ template: null, slot: null, context: null });
     app.setPortalReceiver(setComponents);
 
-    const getNode = (name: string) => {
+    const getNode = useCallback((name: string) => {
       const subscriber = subscribers.find(subscriber => subscriber.name === name);
       if (!subscriber) return null;
       return subscriber.children;
-    }
+    }, [subscribers]);
 
-    const unsubscribe = (name: string) => {
-      return setSubscribe(subscribers => subscribers.filter(subscriber => subscriber.name !== name));
-    }
+    const unsubscribe = useCallback((name: string) => {
+      return setSubscribe(subscribers => {
+        return subscribers.filter(subscriber => subscriber.name !== name);
+      });
+    }, [setSubscribe]);
   
-    const subscribe = (name: string, children: React.ReactNode) => {
+    const subscribe = useCallback((name: string, children: React.ReactNode) => {
       setSubscribe(subscribers => subscribers.concat({ name, children }));
       return () => unsubscribe(name);
-    }
+    }, [subscribers, setSubscribe]);
 
     const Template = template || DefaultTemplate;
     const Slot = slot || DefaultSlot;

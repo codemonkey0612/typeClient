@@ -1,17 +1,18 @@
 import { useApplicationContext } from ".";
 import { useEffect } from "react";
-
-export function useContextEffect(callback: () => (() => void) | void) {
-  const ctx = useApplicationContext();
+import { Context } from "@typeclient/core";
+ 
+export function useContextEffect<T extends Context = Context>(callback: () => (() => void) | void, ctx?: T) {
+  const context = ctx || useApplicationContext();
   useEffect(() => {
-    switch (ctx.status.value) {
+    switch (context.status.value) {
       case 200:
         const unMount = callback();
         if (typeof unMount === 'function') {
-          ctx.$e.on('context.destroy', unMount);
+          context.$e.on('context.destroy', unMount);
         }
         break;
-      case 100: return ctx.useEffect(callback);
+      case 100: return context.useEffect(callback);
     }
   }, []);
 }

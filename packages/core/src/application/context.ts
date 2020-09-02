@@ -12,7 +12,7 @@ export class Context<T extends object = {}> {
   public readonly state: UnwrapNestedRefs<T>;
   public readonly query: { [key: string]: string };
   public readonly params: { [key: string]: string };
-  public readonly key: number;
+  public readonly id: number;
   public readonly $e = mitt();
   public readonly self = this;
   public error: Ref<any> = ref(null);
@@ -25,7 +25,7 @@ export class Context<T extends object = {}> {
     this.state = reactive(data);
     this.query = this.req.query;
     this.params = this.req.params;
-    this.key = index++;
+    this.id = index++;
     this.onHashAnchor();
   }
 
