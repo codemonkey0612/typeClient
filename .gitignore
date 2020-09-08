@@ -24,3 +24,4 @@ yarn-error.log*
 dist
 package.json.lerna_backup
 lerna-debug.log
+package-lock.json
