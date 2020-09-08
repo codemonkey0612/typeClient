@@ -40,6 +40,7 @@ export async function RedirectionTransforing<T extends object = {}>(
     url = await Promise.resolve(server[key](ctx));
     await next();
   });
+  ctx.status.value = 200;
   if (typeof url === 'string') {
     ctx.replace(url);
   } else if (typeof defaultUrl === 'string') {
