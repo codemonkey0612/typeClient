@@ -1,6 +1,6 @@
 import React, { Fragment, useCallback, useEffect } from 'react';
 import { ReactApplication, useContextState, Template, Component, useContextEffect, ComponentTransform, useComponent, useSlot } from '../src';
-import { bootstrp, Controller, Route, State, Context, usePopStateHistoryMode } from '@typeclient/core';
+import { bootstrp, Controller, Route, State, Context, usePopStateHistoryMode, Redirect } from '@typeclient/core';
 import { inject } from 'inversify';
 
 
@@ -38,12 +38,23 @@ class CustomController {
     const { Provider } = useSlot(ctx.app);
     const View = useComponent(this.View);
 
-    const click = useCallback(() => {ctx.redirect('/test/' + (id+1))}, [id])
+    const click = useCallback(() => {ctx.redirect('/r')}, [id])
 
     return <Fragment>
       <div onClick={click}>[{id}]123 + {count}</div>
       <Provider name="slot"><View /></Provider>
     </Fragment>;
+  }
+
+  @Route('/t')
+  ttt() {
+    return <div>afdsaf</div>
+  }
+
+  @Route('/r')
+  @Redirect('/t')
+  aaaa(): null {
+    return null;
   }
 }
 
@@ -53,14 +64,6 @@ const app = new ReactApplication({
 });
 
 app.setController(CustomController);
-
-app.on('Application.onError', (err, ctx) => {
-  return React.createElement('h2', null, err.message);
-})
-
-app.on('Application.onNotFound', (req) => {
-  return React.createElement('h2', null, req.pathname);
-})
 
 bootstrp();
 

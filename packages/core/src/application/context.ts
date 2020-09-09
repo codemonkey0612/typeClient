@@ -10,8 +10,8 @@ export class Context<T extends object = {}> {
   public readonly req: Request;
   public readonly app: Application<any>;
   public readonly state: UnwrapNestedRefs<T>;
-  public readonly query: { [key: string]: string };
-  public readonly params: { [key: string]: string };
+  public readonly query: Record<string, string>;
+  public readonly params: Record<string, string>;
   public readonly id: number;
   public readonly $e = mitt();
   public readonly self = this;
