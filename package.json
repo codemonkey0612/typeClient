@@ -18,7 +18,7 @@
     "lerna": "^3.20.2",
     "rollup": "^2.26.10",
     "rollup-plugin-typescript2": "^0.27.2",
-    "ts-loader": "^7.0.5",
+    "ts-loader": "^8.0.3",
     "typescript": "^3.9.7",
     "vuepress": "^1.5.4",
     "webpack": "^4.43.0",
