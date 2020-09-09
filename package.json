@@ -12,14 +12,14 @@
     "docs:build": "vuepress build wiki"
   },
   "devDependencies": {
-    "inquirer": "^7.3.0",
+    "html-webpack-plugin": "^4.4.1",
+    "inquirer": "^7.3.3",
     "lerna": "^3.20.2",
-    "rollup": "^2.18.2",
-    "rollup-plugin-typescript2": "^0.27.1",
-    "typescript": "^3.9.6",
-    "vuepress": "^1.5.3",
-    "html-webpack-plugin": "^4.3.0",
+    "rollup": "^2.26.10",
+    "rollup-plugin-typescript2": "^0.27.2",
     "ts-loader": "^7.0.5",
+    "typescript": "^3.9.7",
+    "vuepress": "^1.5.4",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
