@@ -20,7 +20,7 @@ class View implements ComponentTransform {
 type TC = Context<TCustomRouteData>
 
 
-@Controller()
+@Controller('/editor')
 @Template(Templater)
 class CustomController {
   @inject(View) private readonly View: View;
@@ -60,7 +60,7 @@ class CustomController {
 
 const app = new ReactApplication({
   el: document.getElementById('app'),
-  prefix: '/'
+  prefix: '/app'
 });
 
 app.setController(CustomController);

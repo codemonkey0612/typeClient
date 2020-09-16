@@ -150,7 +150,7 @@ import { Controller } from '@typeclient/core';
 class router {}
 ```
 
-路遇不仅仅是静态字符串，也可以是动态变量
+路由不仅仅是静态字符串，也可以是动态变量
 
 ```ts
 @Controller('/:id')
@@ -464,3 +464,12 @@ ctx.useEffect(() => {
 我们的原则是，通过`state + component = page`的模式来渲染页面，所以数据的变化一定会引起页面的变化。中间件就是用来提供初始化数据的。中间件在模型决定了它能够对现有的数据获取逻辑进行解偶。它同时也是一种时序型的设计方案，我们一般称为 [洋葱模型](https://baike.baidu.com/item/%E6%B4%8B%E8%91%B1%E6%A8%A1%E5%9E%8B/7675375?fr=aladdin)。
 
 我们设计IOCMiddleware的初衷是解决中间件无法调用IOC服务数据的痛点，为了使其可以当作一个IOC服务，我们将中间件改造称为一种基于IOC调用方式的中间件模型来让开发变的更加简单。
+
+### Application.prefix vs. Controller.prefix
+
+`Application.prefix`是主应用的一个配置选项，意在真实路由只有以`Application.prefix`的值为前缀的时候才会进入路由。而`Controller.prefix` 则是虚拟路由用来匹配进入哪个controller。以下有个例子：
+
+- 真实路由：`/app/editor/abc`
+- Application.prefix = '/app'
+
+那么虚拟路由就是`/editor/abc`，也就是 `Controller.prefix === '/editor/abc'`。系统将会使用整个`/editor/abc`作为选择controller的依据。当然，基于`Application.prefix`，之后所有的`redirect` 以及 `replace` 都会自动加上`Application.prefix`这个前缀。比如： `ctx.redirect="/test"`，那么在浏览器最终看到的真实路由是`/app/test`

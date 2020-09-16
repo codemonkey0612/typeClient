@@ -152,7 +152,7 @@ export class Application<S extends {
   // then clear the prefix to get the real routing address.
   private decode(path: string) {
     if (path.startsWith(this.prefix)) {
-      return path.substring(this.prefix.length - 1) || '/';
+      return path.substring(this.prefix.length) || '/';
     }
   }
 
