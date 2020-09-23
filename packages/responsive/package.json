@@ -1,6 +1,6 @@
 {
   "name": "@typeclient/responsive",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "typeclient responsive",
   "author": "",
   "homepage": "https://github.com/flowxjs/TypeClient",
@@ -23,5 +23,6 @@
   },
   "dependencies": {
     "@vue/reactivity": "^3.0.0-rc.5"
-  }
+  },
+  "gitHead": "09ba2a5eb637b5cc23a86af8cc7972bf5beb40e5"
 }

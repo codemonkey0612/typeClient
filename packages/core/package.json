@@ -1,6 +1,6 @@
 {
   "name": "@typeclient/core",
-  "version": "1.2.11",
+  "version": "1.2.12",
   "description": "typeclient core",
   "author": "",
   "homepage": "https://github.com/flowxjs/TypeClient",
@@ -30,5 +30,6 @@
     "p-reduce": "^2.1.0",
     "reflect-metadata": "^0.1.13",
     "url-parse": "^1.4.7"
-  }
+  },
+  "gitHead": "09ba2a5eb637b5cc23a86af8cc7972bf5beb40e5"
 }
