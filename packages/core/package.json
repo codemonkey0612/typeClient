@@ -14,6 +14,7 @@
   "files": [
     "dist"
   ],
+  "sideEffect": false,
   "scripts": {
     "build": "rollup -c",
     "dev": "../../node_modules/.bin/webpack-dev-server --open --hot --progress --history-api-fallback"

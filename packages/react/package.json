@@ -6,6 +6,7 @@
   "homepage": "https://github.com/flowxjs/TypeClient",
   "license": "MIT",
   "main": "dist/index.js",
+  "sideEffect": false,
   "module": "dist/index.es.js",
   "directories": {
     "lib": "src",

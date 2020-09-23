@@ -7,6 +7,7 @@
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
+  "sideEffect": false,
   "directories": {
     "lib": "src",
     "test": "__tests__"
