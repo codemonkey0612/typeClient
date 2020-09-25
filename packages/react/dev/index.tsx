@@ -12,8 +12,8 @@ interface TCustomRouteData {
 
 @Component()
 class View implements ComponentTransform {
-  render() {
-    return <div>s6666</div>
+  render(props: React.PropsWithoutRef<{onClick: () => void}>) {
+    return <div onClick={props.onClick}>s6666</div>
   }
 }
 
@@ -24,11 +24,11 @@ type TC = Context<TCustomRouteData>
 @Template(Templater)
 class CustomController {
   @inject(View) private readonly View: View;
-  @Route('/test/:id(\\d+)')
+  @Route('/test')
   @State<TCustomRouteData>(() => ({ count: 0 }))
   test(ctx: TC) {
     const count = useContextState(() => ctx.state.count);
-    const id = Number(ctx.params.id);
+    const id = Number(ctx.query.id) || 0;
     useEffect(() => {
       console.log('mounted');
       return () => {
@@ -38,23 +38,15 @@ class CustomController {
     const { Provider } = useSlot(ctx.app);
     const View = useComponent(this.View);
 
-    const click = useCallback(() => {ctx.redirect('/r')}, [id])
+    const click = () => {
+      console.log('clicked');
+      ctx.redirect('/editor/test?id=' + (id + 1))
+    };
 
     return <Fragment>
-      <div onClick={click}>[{id}]123 + {count}</div>
-      <Provider name="slot"><View /></Provider>
+      <div>[{id}]123 + {count}</div>
+      <Provider name="slot"><View onClick={click} /></Provider>
     </Fragment>;
-  }
-
-  @Route('/t')
-  ttt() {
-    return <div>afdsaf</div>
-  }
-
-  @Route('/r')
-  @Redirect('/t')
-  aaaa(): null {
-    return null;
   }
 }
 

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { Application } from '@typeclient/core';
+import { useReactiveState } from '../reactive';
 
 const ProviderDictionary = new WeakMap<Application, React.FunctionComponent<{ name: string }>>();
 const ConsumerDictionary = new WeakMap<Application, React.FunctionComponent<{ name: string }>>();
@@ -20,9 +21,24 @@ export function useSlot<T extends Application>(app: T) {
 function createProvider<T extends Application>(app: T): React.FunctionComponent<{ name: string }> {
   return (props): null => {
     // @ts-ignore
-    const { subscribe } = React.useContext(app.ReactSlotContext);
-    const name = props.name || 'default';
-    React.useEffect(() => subscribe(name, props.children), []);
+    const store = React.useContext<TSlotContext>(app.slotContext);
+    useEffect(() => {
+      if (!store[props.name]) {
+        store[props.name] = [];
+      }
+      if (store[props.name].indexOf(props.children) === -1) {
+        store[props.name].push(props.children);
+      }
+      return () => {
+        const index = store[props.name].indexOf(props.children);
+        if (index > -1) {
+          store[props.name].splice(index, 1);
+        }
+        if (store[props.name].length === 0) {
+          delete store[props.name];
+        }
+      }
+    }, [props.name, props.children]);
     return null;
   }
 }
@@ -30,8 +46,9 @@ function createProvider<T extends Application>(app: T): React.FunctionComponent<
 function createConsumer<T extends Application>(app: T): React.FunctionComponent<{ name: string }> {
   return props => {
     // @ts-ignore
-    const { getNode } = React.useContext(app.ReactSlotContext);
-    const children = getNode(props.name);
-    return (children || props.children || null) as React.ReactElement;
+    const store = React.useContext<TSlotContext>(app.slotContext);
+    const value = useReactiveState(() => store[props.name]);
+    if (!value) return null;
+    return React.createElement(Fragment, null, ...value);
   }
 }

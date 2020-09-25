@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { Application, TApplicationOptions, Context, TAnnotationScanerMethod } from '@typeclient/core';
-import { CreateGlobalComponent, TReactPortalContext, TSlotContext } from './components/global';
+import { CreateGlobalComponent, TReactPortalContext } from './components/global';
 import { NAMESPACE } from './annotations';
 import { ContextProvider, useReactiveState } from './reactive';
+import { reactive, Ref, UnwrapRef } from '@vue/reactivity';
 
+export type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 export type TReactApplicationOptions = TApplicationOptions & { el: HTMLElement };
+export type TSlotState = UnwrapNestedRefs<Record<string, React.ReactNode[]>>;
 
 export class ReactApplication extends Application {
   public readonly FCS: WeakMap<any, Map<string, React.FunctionComponent<any>>> = new WeakMap();
   private portalDispatcher: React.Dispatch<React.SetStateAction<TReactPortalContext<any>>>;
-  public ReactSlotContext: React.Context<TSlotContext>;
+  public readonly slotState: TSlotState = reactive({});
+  public readonly slotContext: React.Context<TSlotState> = React.createContext(this.slotState);
   constructor(options: TReactApplicationOptions) {
     super(options);
     this.on('Application.onInit', next => this.applicationWillSetup(options.el, next));
