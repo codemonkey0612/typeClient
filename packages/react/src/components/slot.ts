@@ -35,7 +35,7 @@ function createConsumer<T extends Application>(app: T): React.FunctionComponent<
   return props => {
     // @ts-ignore
     const store = React.useContext<ReactApplication['slotState']>(app.slotContext);
-    const value = useReactiveState(() => store[props.name]);
+    const value = useReactiveState(() => store[props.name] || null);
     return (value || props.children || null) as React.ReactElement;
   }
 }
