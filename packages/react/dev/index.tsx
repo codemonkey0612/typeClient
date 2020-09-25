@@ -44,9 +44,15 @@ class CustomController {
     };
 
     return <Fragment>
-      <div>[{id}]123 + {count}</div>
+      <div onClick={() => ctx.redirect('/editor/v')}>[{id}]123 + {count}</div>
       <Provider name="slot"><View onClick={click} /></Provider>
+      {/* <Provider name="slot">dafsdf</Provider> */}
     </Fragment>;
+  }
+
+  @Route('/v')
+  aa() {
+    return <div>111</div>
   }
 }
 

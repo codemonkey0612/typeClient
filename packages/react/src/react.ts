@@ -8,13 +8,13 @@ import { reactive, Ref, UnwrapRef } from '@vue/reactivity';
 
 export type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 export type TReactApplicationOptions = TApplicationOptions & { el: HTMLElement };
-export type TSlotState = UnwrapNestedRefs<Record<string, React.ReactNode[]>>;
+export type TSlotState = UnwrapNestedRefs<Record<string, React.ReactNode>>;
 
 export class ReactApplication extends Application {
   public readonly FCS: WeakMap<any, Map<string, React.FunctionComponent<any>>> = new WeakMap();
-  private portalDispatcher: React.Dispatch<React.SetStateAction<TReactPortalContext<any>>>;
   public readonly slotState: TSlotState = reactive({});
   public readonly slotContext: React.Context<TSlotState> = React.createContext(this.slotState);
+  private portalDispatcher: React.Dispatch<React.SetStateAction<TReactPortalContext<any>>>;
   constructor(options: TReactApplicationOptions) {
     super(options);
     this.on('Application.onInit', next => this.applicationWillSetup(options.el, next));
