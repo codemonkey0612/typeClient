@@ -1,6 +1,6 @@
 {
   "name": "@typeclient/axios",
-  "version": "1.1.13",
+  "version": "1.1.14",
   "description": "typeclient axios",
   "author": "",
   "sideEffect": false,
@@ -22,7 +22,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@typeclient/core": "^1.2.13",
+    "@typeclient/core": "^1.2.14",
     "axios": "^0.20.0"
   },
   "gitHead": "09ba2a5eb637b5cc23a86af8cc7972bf5beb40e5"
