@@ -1,6 +1,6 @@
 import React, { Fragment, useCallback, useEffect } from 'react';
-import { ReactApplication, useContextState, Template, Component, useContextEffect, ComponentTransform, useComponent, useSlot } from '../src';
-import { bootstrp, Controller, Route, State, Context, usePopStateHistoryMode, Redirect } from '@typeclient/core';
+import { ReactApplication, useContextState, Template, Component, useContextEffect, ComponentTransform, useComponent, useSlot, useReactiveState } from '../src';
+import { bootstrp, Controller, Route, State, Context, usePopStateHistoryMode, Redirect, ComposeNextCallback, useMiddleware, onContextCreated } from '@typeclient/core';
 import { inject } from 'inversify';
 
 
@@ -8,6 +8,17 @@ usePopStateHistoryMode()
 
 interface TCustomRouteData {
   count: number
+}
+
+async function mm(ctx: TC, next: ComposeNextCallback) {
+  const id = Number(ctx.query.id) || 0;
+  console.log('id:', id)
+  if (id > 0) {
+    ctx.state.count = 0;
+  } else {
+    ctx.state.count = 100;
+  }
+  await next();
 }
 
 @Component()
@@ -26,9 +37,14 @@ class CustomController {
   @inject(View) private readonly View: View;
   @Route('/test')
   @State<TCustomRouteData>(() => ({ count: 0 }))
+  @useMiddleware(mm)
+  @onContextCreated(ctx => {
+    console.log(ctx, 'ctx');
+  })
   test(ctx: TC) {
-    const count = useContextState(() => ctx.state.count);
+    const count = useReactiveState(() => ctx.state.count);
     const id = Number(ctx.query.id) || 0;
+    console.log('in cmp', id, count, ctx.state.count)
     useEffect(() => {
       console.log('mounted');
       return () => {

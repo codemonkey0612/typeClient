@@ -8,4 +8,5 @@ export enum NAMESPACE {
   INTERCEPTOR = 'TypeClient.NAMESPACE.HTTP.Controller.Interceptor',
   STATE = 'TypeClient.NAMESPACE.HTTP.Controller.State',
   REDIRECT = 'TypeClient.NAMESPACE.HTTP.Controller.Redirect',
+  CONTEXTCREATED = 'TypeClient.NAMESPACE.HTTP.Context.Created',
 }

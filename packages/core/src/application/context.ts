@@ -18,6 +18,7 @@ export class Context<T extends object = {}> {
   public error: Ref<any> = ref(null);
   public status: Ref<100 | 200 | 500 | 900 | 302> = ref(100);
   private readonly rejections: ((e?: any) => void)[] = [];
+  public readonly callbacks: (() => void)[] = [];
 
   constructor(app: Application<any>, req: Request, data: T) {
     this.app = app;

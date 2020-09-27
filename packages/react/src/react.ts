@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import ReactDOM from 'react-dom';
 import { Application, TApplicationOptions, Context, TAnnotationScanerMethod } from '@typeclient/core';
 import { CreateGlobalComponent, TReactPortalContext } from './components/global';
@@ -27,6 +27,23 @@ export class ReactApplication extends Application {
           slot: () => node,
         })
       }
+    });
+    this.installContextTask();
+  }
+
+  private installContextTask() {
+    let cmp: FunctionComponent = null;
+    let state: any = null;
+    this.setBeforeContextCreate(props => {
+      const fn = this.getLazyServerKeyCallback(props.server, props.key as string);
+      const _state = props.state === 'function' ? props.state() : props.state;
+      if (cmp && fn === cmp) {
+        state = Object.assign(state, _state);
+        return props.next(state);
+      }
+      state = _state;
+      cmp = fn;
+      props.next(state);
     });
   }
 

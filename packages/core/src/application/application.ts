@@ -15,6 +15,7 @@ import { MiddlewareTransform } from './transforms';
 type TNotFound = TApplicationLifeCycle['Application.onNotFound'];
 type TError = TApplicationLifeCycle['Application.onError'];
 type THashAnchor = TApplicationLifeCycle['Application.onHashAnchorChange'];
+type TBeforeContextCreateProps = { server: any, key: string | symbol, state: any, next: (state: any) => void };
 export type TApplicationOptions = RouterArguments & { prefix: string };
 
 export class Application<S extends { 
@@ -26,6 +27,8 @@ export class Application<S extends {
   private _initialized = false;
   private _subscribed = false;
   private _unSubscribe: ReturnType<typeof useHistoryFeedback>;
+  private _beforeContextCreate: (props: TBeforeContextCreateProps) => void;
+  private _afterContextCreated: (ctx: Context<any>) => void;
 
   public context: Context;
   public readonly prefix: string;
@@ -40,6 +43,16 @@ export class Application<S extends {
       this.trigger('Application.onError', e, ctx)
     )
   });
+
+  public setBeforeContextCreate(callback: (props: TBeforeContextCreateProps) => void) {
+    this._beforeContextCreate = callback;
+    return this;
+  }
+
+  public setAfterContextCreated(callback: (ctx: Context<any>) => void) {
+    this._afterContextCreated = callback;
+    return this;
+  }
 
   constructor(options: TApplicationOptions = { prefix: '/' }) {
     super();
@@ -190,24 +203,35 @@ export class Application<S extends {
       const propertyInjectors = method.meta.got<TClassIndefiner<any>[]>(NAMESPACE.INJECTABLE, []);
       const propertyStates = method.meta.got<object | (() => object)>(NAMESPACE.STATE, {});
       const redirect_url = method.meta.got<string | boolean>(NAMESPACE.REDIRECT, false);
+      const contextCreateds = method.meta.got<((ctx: Context<any>) => void)[]>(NAMESPACE.CONTEXTCREATED, []);
       // auto register method injectors to container.
       this.injectClassModules(...propertyInjectors);
       propertyPaths.forEach(propertyPath => {
         const propertyEntryPath = join(classPrefix, '.', propertyPath);
         this.router.on(propertyEntryPath, (req: Request) => {
+          let context: Context<any>;
           const server = TypeClientContainer.get<T>(classModule);
-          const context = this.context = new Context(
-            this, req, 
-            /**
-             * create new State value
-             * if it is typeof function then it is not cacheable.
-             * otherwise it is cacheable.
-             */
-            typeof propertyStates === 'function' 
-              ? propertyStates() 
-              : propertyStates
-          );
-
+          const createContext = (state: any) => {
+            context = this.context = new Context(
+              this, req, state
+            );
+            if (this._afterContextCreated) {
+              this._afterContextCreated(context);
+            }
+            contextCreateds.forEach(created => created(context));
+          }
+          if (this._beforeContextCreate) {
+            this._beforeContextCreate({
+              server, key, state: propertyStates,
+              next: createContext,
+            })
+          } else {
+            createContext(
+              typeof propertyStates === 'function' 
+                ? propertyStates() 
+                : propertyStates
+            )
+          }
           if (redirect_url) {
             // It is a Redirection Function.
             // We use output value or redirect_url for redirecting.
