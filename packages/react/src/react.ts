@@ -36,7 +36,7 @@ export class ReactApplication extends Application {
     let state: any = null;
     this.setBeforeContextCreate(props => {
       const fn = this.getLazyServerKeyCallback(props.server, props.key as string);
-      const _state = props.state === 'function' ? props.state() : props.state;
+      const _state = typeof props.state === 'function' ? props.state() : props.state;
       if (cmp && fn === cmp) {
         state = Object.assign(state, _state);
         return props.next(state);
