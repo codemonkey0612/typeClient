@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo } from 'react';
 import { ReactApplication, useContextState, Template, Component, useContextEffect, ComponentTransform, useComponent, useSlot, useReactiveState } from '../src';
 import { bootstrp, Controller, Route, State, Context, usePopStateHistoryMode, Redirect, ComposeNextCallback, useMiddleware, onContextCreated } from '@typeclient/core';
 import { inject } from 'inversify';
@@ -11,70 +11,58 @@ interface TCustomRouteData {
 }
 
 async function mm(ctx: TC, next: ComposeNextCallback) {
-  const id = Number(ctx.query.id) || 0;
-  console.log('id:', id)
-  if (id > 0) {
-    ctx.state.count = 0;
-  } else {
-    ctx.state.count = 100;
-  }
+  ctx.state.count = Math.random() * 10000;
   await next();
 }
 
 @Component()
 class View implements ComponentTransform {
-  render(props: React.PropsWithoutRef<{onClick: () => void}>) {
-    return <div onClick={props.onClick}>s6666</div>
+  render(props: React.PropsWithoutRef<{ ctx: TC }>) {
+    console.log('ctx', props.ctx)
+    const count = useReactiveState(() => props.ctx.state.count, [props.ctx.id]);
+    return <div>s6666 - {count}</div>
   }
 }
 
 type TC = Context<TCustomRouteData>
 
 
-@Controller('/editor')
+@Controller()
 @Template(Templater)
 class CustomController {
   @inject(View) private readonly View: View;
-  @Route('/test')
+  @Route('/a')
   @State<TCustomRouteData>(() => ({ count: 0 }))
   @useMiddleware(mm)
-  @onContextCreated(ctx => {
-    console.log(ctx, 'ctx');
-  })
   test(ctx: TC) {
     const count = useReactiveState(() => ctx.state.count);
-    const id = Number(ctx.query.id) || 0;
-    console.log('in cmp', id, count, ctx.state.count)
-    useEffect(() => {
-      console.log('mounted');
-      return () => {
-        console.log('unmounted')
-      }
-    }, []);
     const { Provider } = useSlot(ctx.app);
     const View = useComponent(this.View);
 
-    const click = () => {
-      console.log('clicked');
-      ctx.redirect('/editor/test?id=' + (id + 1))
-    };
-
     return <Fragment>
-      <div onClick={() => ctx.redirect('/editor/v')}>[{id}]123 + {count}</div>
-      <Provider name="slot"><View onClick={click} /></Provider>
-      {/* <Provider name="slot">dafsdf</Provider> */}
+      <div onClick={() => ctx.redirect('/b')}>a: {count}</div>
+      <Provider name="slot"><View ctx={ctx} /></Provider>
     </Fragment>;
   }
 
-  @Route('/v')
-  aa() {
-    return <div>111</div>
+  @Route('/b')
+  @State<TCustomRouteData>(() => ({ count: 0 }))
+  @useMiddleware(mm)
+  aa(ctx: TC) {
+    const count = useReactiveState(() => ctx.state.count);
+    const { Provider } = useSlot(ctx.app);
+    const View = useComponent(this.View);
+
+    return <Fragment>
+      <div onClick={() => ctx.redirect('/a')}>a: {count}</div>
+      <Provider name="slot"><View ctx={ctx} /></Provider>
+    </Fragment>;
   }
 }
 
 const app = new ReactApplication({
   el: document.getElementById('app'),
-  prefix: '/app'
+  prefix: '/'
 });
 
 app.setController(CustomController);

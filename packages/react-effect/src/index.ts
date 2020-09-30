@@ -1,6 +1,6 @@
 import { useForceUpdate, useEffection } from './effect';
 
-export const useReactiveState = <S>(selector: () => S): S => {
+export const useReactiveState = <S>(selector: () => S, changes?: any[]): S => {
   const forceUpdate = useForceUpdate();
   const effection = useEffection(selector, {
     scheduler: job => {
@@ -8,6 +8,6 @@ export const useReactiveState = <S>(selector: () => S): S => {
       forceUpdate();
     },
     lazy: true,
-  });
+  }, changes);
   return effection();
 }

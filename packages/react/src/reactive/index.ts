@@ -19,9 +19,9 @@ const useStoreContext = () => {
  * 在组件中读取全局状态
  * 需要通过传入的函数收集依赖
  */
-export const useContextState = <T, S>(selector: Selector<T, S>): S => {
+export const useContextState = <T, S>(selector: Selector<T, S>, changes?: any[]): S => {
   const store = useStoreContext() as T;
-  return useReactiveState<S>(() => selector(store));
+  return useReactiveState<S>(() => selector(store), changes);
 };
 
 export const ContextProvider = StoreContext.Provider;
