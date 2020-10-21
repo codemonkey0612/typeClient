@@ -27,7 +27,7 @@
     "@typeclient/react-effect": "^1.0.9",
     "@types/react": "^16.9.41",
     "@types/react-dom": "^16.9.8",
-    "react": "^16.13.1",
+    "react": "^17.0.0",
     "react-dom": "^17.0.0"
   },
   "gitHead": "09ba2a5eb637b5cc23a86af8cc7972bf5beb40e5"
