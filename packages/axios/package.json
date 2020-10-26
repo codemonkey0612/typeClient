@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@typeclient/core": "^1.2.15",
-    "axios": "^0.20.0"
+    "axios": "^0.21.0"
   },
   "gitHead": "09ba2a5eb637b5cc23a86af8cc7972bf5beb40e5"
 }
