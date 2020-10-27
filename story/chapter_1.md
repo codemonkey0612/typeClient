@@ -1,4 +1,4 @@
-# 如何利用AOP+IOC思想结构前端项目开发
+# 如何利用AOP+IOC思想解构前端项目开发
 
 本文将通过 [TypeClient](https://github.com/flowxjs/TypeClient) 架构来阐述如何利用AOP+IOC思想来解构前端项目的开发。
 
