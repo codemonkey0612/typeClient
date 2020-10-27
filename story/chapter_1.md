@@ -120,3 +120,309 @@ app.setController(DemoController);
 ```
 
 > 可见，TypeClient 通过 AOP 理念定义路由非常简单。
+
+### 路由生命周期
+
+当从一个页面跳转到另一个页面的时候，前一个页面的生命周期也随即结束，所以，路由是具有生命周期的。再此，我们将整个页面周期拆解如下:
+
+1. beforeCreate 页面开始加载
+1. created 页面加载完成
+1. beforeDestroy 页面即将销毁
+1. destroyed 页面已经销毁
+
+为了表示这4个生命周期，我们根据React的hooks特制了一个函数`useContextEffect`来处理路由生命周期的副作用。比如:
+
+```js
+import React from 'react';
+import { Controller, Route, Context } from '@typeclient/core';
+import { useReactiveState } from '@typeclient/react';
+@Controller('/api')
+export class DemoController {
+  @Route('/test')
+  TestPage(props: Reat.PropsWithoutRef<Context>) {
+    const status = useReactiveState(() => props.status.value);
+    useContextEffect(() => {
+      console.log('路由加载完成了');
+      return () => console.log('路由被销毁了');
+    })
+    return <div>Hello world! {status}</div>;
+  }
+}
+```
+
+其实它与`useEffect`或者`useLayoutEffect`有些类似。只不过我们关注的是路由的生命周期，而react则关注组件的生命周期。
+
+其实通过上面的`props.status.value`我们可以猜测出，路由是有状态记录的，分别是`100`和`200`还有`500`等等。我们可以通过这样的数据来判断当前路由处于什么生命周期内，也可以通过骨架屏来渲染不同的效果。
+
+### 中间件设计
+
+为了控制路由生命周期的运行，我们设计了中间件模式，用来处理路由前置的行为，比如请求数据等等。中间件原则上采用与KOA一致的模式，这样可以大大兼容社区生态。
+
+```js
+const middleware = async (ctx, next) => {
+  // ctx.....
+  await next();
+}
+```
+
+通过AOP 我们可以轻松引用这个中间件，达到页面加载完毕状态前的数据处理。
+
+```js
+import React from 'react';
+import { Controller, Route, Context, useMiddleware } from '@typeclient/core';
+import { useReactiveState } from '@typeclient/react';
+@Controller('/api')
+export class DemoController {
+  @Route('/test')
+  @useMiddleware(middleware)
+  TestPage(props: Reat.PropsWithoutRef<Context>) {
+    const status = useReactiveState(() => props.status.value);
+    useContextEffect(() => {
+      console.log('路由加载完成了');
+      return () => console.log('路由被销毁了');
+    })
+    return <div>Hello world! {status}</div>;
+  }
+}
+```
+
+### 设计周期状态管理 - ContextStore
+
+不得不说这个是一个亮点。为什么要设计这样一个模式呢？主要是为了解决在中间件过程中对数据的操作能够及时响应到页面。因为中间件执行与react页面渲染是同步的，所以我们设计这样的模式有利于数据的周期化。
+
+我们采用了非常黑科技的方案解决这个问题：`@vue/reactity`
+
+对，就是它。
+
+我们在react中嵌入了`VUE3`最新的响应式系统，让我们开发快速更新数据，而放弃掉`dispatch`过程。当然，这对中间件更新数据是及其有力的。
+
+> 这里 我非常感谢 [sl1673495](https://github.com/sl1673495/react-composition-api) 给到的黑科技思路让我们的设计能够完美兼容react。
+
+我们通过`@State(callback)`来定义ContextStore的初始化数据，通过`useContextState`或者`useReactiveState`跟踪数据变化并且响应到React页面中。
+
+来看一个例子:
+
+```js
+import React from 'react';
+import { Controller, Route, Context, useMiddleware, State } from '@typeclient/core';
+import { useReactiveState } from '@typeclient/react';
+@Controller('/api')
+export class DemoController {
+  @Route('/test')
+  @useMiddleware(middleware)
+  @State(createState)
+  TestPage(props: Reat.PropsWithoutRef<Context>) {
+    const status = useReactiveState(() => props.status.value);
+    const count = useReactiveState(() => props.state.count);
+    const click = useCallback(() => ctx.state.count++, [ctx.state.count]);
+    useContextEffect(() => {
+      console.log('路由加载完成了');
+      return () => console.log('路由被销毁了');
+    })
+    return <div onClick={click}>Hello world! {status} - {count}</div>;
+  }
+}
+
+function createState() {
+  return {
+    count: 0,
+  }
+}
+```
+
+你可以看到不断点击，数据不断变化。这种操作方式极大简化了我们数据的变化写法，同时也可以与vue3响应式能力看齐，弥补react数据操作复杂度的短板。
+
+### 利用IOC思想解构项目
+
+以上的讲解都没有设计IOC方面，那么下面将讲解IOC的使用。
+
+#### Controller 服务解构
+
+我们先编写一个Service文件
+
+```js
+import { Service } from '@typeclient/core';
+
+@Service()
+export class MathService {
+  sum(a: number, b: number) {
+    return a + b;
+  }
+}
+```
+
+然后我们可以在之前的Controller中直接调用:
+
+```js
+import React from 'react';
+import { Controller, Route, Context, useMiddleware, State } from '@typeclient/core';
+import { useReactiveState } from '@typeclient/react';
+import { MathService } from './service.ts';
+@Controller('/api')
+export class DemoController {
+  @inject(MathService) private readonly MathService: MathService;
+
+  @Route('/test')
+  @useMiddleware(middleware)
+  @State(createState)
+  TestPage(props: Reat.PropsWithoutRef<Context>) {
+    const status = useReactiveState(() => props.status.value);
+    const count = useReactiveState(() => props.state.count);
+    const click = useCallback(() => ctx.state.count++, [ctx.state.count]);
+    const value = this.MathService.sum(count, status);
+    useContextEffect(() => {
+      console.log('路由加载完成了');
+      return () => console.log('路由被销毁了');
+    })
+    return <div onClick={click}>Hello world! {status} + {count} = {value}</div>;
+  }
+}
+
+function createState() {
+  return {
+    count: 0,
+  }
+}
+```
+
+你可以看到数据的不断变化。
+
+#### Component 解构
+
+我们为react的组件创造了一种新的组件模式，称`IOCComponent`。它是一种具备IOC能力的组件，我们通过`useComponent`的hooks来调用。
+
+```js
+import React from 'react';
+import { Component, ComponentTransform } from '@typeclient/react';
+import { MathService } from './service.ts';
+
+@Component()
+export class DemoComponent implements ComponentTransform {
+  @inject(MathService) private readonly MathService: MathService;
+
+  render(props: React.PropsWithoutRef<{ a: number, b: number }>) {
+    const value = this.MathService.sum(props.a, props.b);
+    return <div>{value}</div>
+  }
+}
+```
+
+然后在任意组件中调用
+
+```js
+import React from 'react';
+import { Controller, Route, Context, useMiddleware, State } from '@typeclient/core';
+import { useReactiveState } from '@typeclient/react';
+import { MathService } from './service.ts';
+import { DemoComponent } from './component';
+@Controller('/api')
+export class DemoController {
+  @inject(MathService) private readonly MathService: MathService;
+  @inject(DemoComponent) private readonly DemoComponent: DemoComponent;
+
+  @Route('/test')
+  @useMiddleware(middleware)
+  @State(createState)
+  TestPage(props: Reat.PropsWithoutRef<Context>) {
+    const status = useReactiveState(() => props.status.value);
+    const count = useReactiveState(() => props.state.count);
+    const click = useCallback(() => ctx.state.count++, [ctx.state.count]);
+    const value = this.MathService.sum(count, status);
+    const Demo = useComponent(this.DemoComponent);
+    useContextEffect(() => {
+      console.log('路由加载完成了');
+      return () => console.log('路由被销毁了');
+    })
+    return <div onClick={click}>
+      Hello world! {status} + {count} = {value} 
+      <Demo a={count} b={value} />
+    </div>;
+  }
+}
+
+function createState() {
+  return {
+    count: 0,
+  }
+}
+```
+
+#### Middleware 解构
+
+我们完全可以抛弃掉传统的中间件写法，而采用能加解构化的中间件写法:
+
+```js
+import { Context } from '@typeclient/core';
+import { Middleware, MiddlewareTransform } from '@typeclient/react';
+import { MathService } from './service';
+
+@Middleware()
+export class DemoMiddleware implements MiddlewareTransform {
+  @inject(MathService) private readonly MathService: MathService;
+
+  async use(ctx: Context, next: Function) {
+    ctx.a = this.MathService.sum(1, 2);
+    await next();
+  }
+}
+```
+
+#### 为react新增Slot插槽概念
+
+它支持Slot插槽模式，我们可以通过useSlot获得Provider与Consumer。它是一种通过消息传送节点片段的模式。
+
+```js
+const { Provider, Consumer } = useSlot(ctx.app);
+<Provider name="foo">provider data</Provider>
+<Consumer name="foo">placeholder</Consumer>
+```
+
+然后编写一个IOCComponent或者传统组件。
+
+```js
+// template.tsx
+import { useSlot } from '@typeclient/react';
+@Component()
+class uxx implements ComponentTransform {
+  render(props: any) {
+    const { Consumer } = useSlot(props.ctx);
+    return <div>
+      <h2>title</h2>
+      <Consumer name="foo" />
+      {props.children}
+    </div>
+  }
+}
+```
+最后在Controller上调用
+```js
+import { inject } from 'inversify';
+import { Route, Controller } from '@typeclient/core';
+import { useSlot } from '@typeclient/react';
+import { uxx } from './template.tsx';
+@Controller()
+@Template(uxx)
+class router {
+  @inject(ttt) private readonly ttt: ttt;
+  @Route('/test')
+  test() {
+    const { Provider } = useSlot(props.ctx);
+    return <div>
+      child ...
+      <Provider name="foo">
+        this is foo slot
+      </Provider>
+    </div>
+  }
+}
+```
+
+你能看到的结构如下:
+
+```html
+<div>
+  <h2>title</h2>
+  this is foo slot
+  <div>child ...</div>
+</div>
+```
