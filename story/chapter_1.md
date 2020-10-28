@@ -232,6 +232,32 @@ function createState() {
 
 你可以看到不断点击，数据不断变化。这种操作方式极大简化了我们数据的变化写法，同时也可以与vue3响应式能力看齐，弥补react数据操作复杂度的短板。
 
+除了在周期中使用这个黑科技，其实它也是可以独立使用的，比如在任意位置定义:
+
+```js
+// test.ts
+import { reactive } from '@vue/reactity';
+
+export const data = reactive({
+  count: 0,
+})
+```
+
+我们可以在任意组件中使用
+
+```js
+import React, { useCallback } from 'react';
+import { useReactiveState } from '@typeclient/react-effect';
+import { data } from './test';
+
+function TestComponent() {
+  const count = useReactiveState(() => data.count);
+  const onClick = useCallback(() => data.count++, [data.count]);
+  return <div onClick={onClick}>{count}</div>
+}
+```
+
+
 ### 利用IOC思想解构项目
 
 以上的讲解都没有设计IOC方面，那么下面将讲解IOC的使用。
@@ -426,3 +452,126 @@ class router {
   <div>child ...</div>
 </div>
 ```
+
+### 解构项目的原则
+
+我们可以通过对IOC服务与Middleware还有组件进行不同纬度的解构，封装成统一的npm包上传到私有仓库中供公司内部开发使用。
+
+**类型**
+
+1. IOCComponent + IOCService
+1. IOCMiddleware + IOCService
+1. IOCMiddlewware
+1. IOCService
+
+**原则**
+
+1. 通用化
+1. 内聚合
+1. 易扩展
+
+遵循这种原则的化可以使公司的业务代码或者组件具有高度的复用性，而且通过AOP能够很清楚直观的表现代码即文档的魅力。
+
+#### 通用化
+
+即保证所封装的逻辑、代码或者组件具体高度的通用化特性，对于不太通用的没必要封装。比如说，公司内部统一的导航头，导航头有可能被用到任意项目中做统一化，那么就非常适合封装为组件型模块。
+
+#### 内聚性
+
+通用的组件需要得到统一的数据，那么可以通过IOCComponent + IOCService + IOCMiddleware的形式将其包装，在使用的适合只需要关注导入这个组件即可。还是举例通用导航头。比如导航头需要下拉一个团队列表，那么，我们可以这样定义这个组件:
+
+一个service文件:
+
+```js
+// service.ts
+import { Service } from '@typeclient/core';
+@Service()
+export class NavService {
+  getTeams() {
+    // ... 这里可以是ajax请求的结果
+    return [
+      {
+        name: 'Team 1',
+        id: 1,
+      },
+      {
+        name: 'Team 2',
+        id: 1,
+      }
+    ]
+  }
+
+  goTeam(id: number) {
+    // ...
+    console.log(id);
+  }
+}
+```
+
+组件:
+
+```js
+// component.ts
+import React, { useEffect, setState } from 'react';
+import { Component, ComponentTransform } from '@typeclient/react';
+import { NavService } from './service';
+
+@Component()
+export class NavBar implements ComponentTransform {
+  @inject(NavService) private readonly NavService: NavService;
+  render() {
+    const [teams, setTeams] = setState<ReturnType<NavService['getTeams']>>([]);
+    useEffect(() => this.NavService.getTeams().then(data => setTeams(data)), []);
+    return <ul>
+      {
+        teams.map(team => <li onClick={() => this.NavService.goTeam(team.id)}>{team.name}</li>)
+      }
+    </ul>
+  }
+}
+```
+
+我们将这个模块定义为`@fe/navbar`，同时导出这个个对象:
+
+```js
+// @fe/navbar/index.ts
+export * from './component';
+```
+
+在任意的IOC组件中就可以这样调用
+
+```js
+import React from 'react';
+import { Component, ComponentTransform, useComponent } from '@typeclient/react';
+import { NavBar } from '@fe/navbar';
+
+@Component()
+export class DEMO implements ComponentTransform {
+  @inject(NavBar) private readonly NavBar: NavBar;
+  render() {
+    const NavBar = useComponent(this.NavBar);
+    return <NavBar />
+  }
+}
+```
+
+你可以发现只要加载这个组件，相当于请求数据都自动被载入了，这就非常有区别与普通的组件模式，它可以是一种业务型的组件解构方案。非常实用。
+
+#### 易扩展
+
+主要是让我们对于设计这个通用型的代码或者组件时候保持搞扩展性，比如说，巧用SLOT插槽原理，我们可以预留一些空间给插槽，方便这个组件被使用不同位置的代码所传送并且替换掉原位置内容，这个的好处需要开发者自行体会。
+
+
+### 演示
+
+我们提供了一个demo来表现它的能力，而且可以从代码中看到如何解构整个项目。我们的每个Controller都可以独立存在，使得项目内容迁移变得非常容易。
+
+- 框架: [https://github.com/flowxjs/TypeClient](https://github.com/flowxjs/TypeClient)
+- 项目模板: [https://github.com/flowxjs/TypeClientReactTemplate](https://github.com/flowxjs/TypeClientReactTemplate)
+- 简单的最佳实践: [https://github.com/flowxjs/TypeClient-Demo-Editor](https://github.com/flowxjs/TypeClient-Demo-Editor)
+
+大家可以通过以上的两个例子来了解开发模式。
+
+## 总结
+
+新的开发理念并不是让你摒弃掉传统的开发方式和社区，而且提供更好的思路。当然，这种思路的好与坏，各有各的理解。但是我还是想声明下，我今天仅仅是提供一种新的思路，大家看看就好，喜欢的给个star。非常感谢!
