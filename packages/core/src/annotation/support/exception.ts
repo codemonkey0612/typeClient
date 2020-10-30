@@ -10,6 +10,7 @@ export function useException<
   T extends ExceptionTransfrom<C>
 >(error: TClassIndefiner<T>) {
   return <T>(target: Object, property?: string | symbol, descripor?: TypedPropertyDescriptor<T>) => {
+    if (!error) return;
     const instance = ClassMetaCreator.instance(error);
     const isException = instance.got(NAMESPACE.EXCEPTION, false);
     if (isException) {

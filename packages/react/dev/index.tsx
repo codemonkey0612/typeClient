@@ -67,6 +67,14 @@ const app = new ReactApplication({
 
 app.setController(CustomController);
 
+app.onError((err) => {
+  return <p>{err.message}</p>
+})
+
+app.onNotFound(() => {
+  return <p>Not</p>
+})
+
 bootstrp();
 
 

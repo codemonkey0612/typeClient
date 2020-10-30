@@ -1,13 +1,12 @@
 {
-  "name": "@typeclient/react-effect",
-  "version": "1.0.9",
-  "description": "typeclient react-effect",
+  "name": "@typeclient/react-sapp",
+  "version": "1.0.0",
+  "description": "typeclient react-sapp",
   "author": "",
   "homepage": "https://github.com/flowxjs/TypeClient",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
-  "sideEffect": false,
   "directories": {
     "lib": "src",
     "test": "__tests__"
@@ -16,16 +15,18 @@
     "dist"
   ],
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "dev": "../../node_modules/.bin/webpack-dev-server --open --hot --progress --history-api-fallback"
   },
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "@vue/reactivity": "^3.0.0-rc.5"
+    "@typeclient/core": "^1.2.15",
+    "@typeclient/react-effect": "^1.0.9"
   },
   "peerDependencies": {
-    "react": "^17.0.0"
-  },
-  "gitHead": "09ba2a5eb637b5cc23a86af8cc7972bf5beb40e5"
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
+  }
 }

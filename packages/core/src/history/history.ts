@@ -14,7 +14,10 @@ const History: THistory = {
 window.addEventListener(History.mode, invoke);
 
 export function unSubscribe() {
-  window.removeEventListener(History.mode, History.listener);
+  if (History.listener) {
+    window.removeEventListener(History.mode, History.listener);
+    History.listener = null;
+  }
 }
 
 export function useHistoryFeedback(callback: THistoryStack) {
@@ -36,11 +39,12 @@ export function usePopStateHistoryMode() {
   if (History.mode !== mode) {
     unSubscribe();
     window.addEventListener(History.mode = mode, invoke);
+    History.listener = invoke;
   }
 }
 
 export function invoke() {
-  const url = getUrlByLocation();
+  const url = History.listener ? getUrlByLocation() : '/';
   let i = History.stacks.length;
   while (i--) History.stacks[i](url);
 }

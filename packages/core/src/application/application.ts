@@ -177,7 +177,7 @@ export class Application<S extends {
    * auto inject modules to <TypeContainer>.
    * @param classModules 
    */
-  private injectClassModules(...classModules: TClassIndefiner<any>[]) {
+  public injectClassModules(...classModules: TClassIndefiner<any>[]) {
     classModules.forEach(classModule => {
       AnnotationDependenciesAutoRegister(
         classModule, 
