@@ -1,0 +1,28 @@
+{
+  "name": "@typeclient/vue",
+  "version": "1.0.0",
+  "description": "typeclient vue",
+  "author": "",
+  "homepage": "https://github.com/flowxjs/TypeClient",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "directories": {
+    "lib": "src",
+    "test": "__tests__"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "../../node_modules/.bin/webpack-dev-server --open --hot --progress --history-api-fallback"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@typeclient/core": "^1.2.16",
+    "vue": "^3.0.2"
+  }
+}
