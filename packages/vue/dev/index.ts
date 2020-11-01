@@ -62,23 +62,26 @@ class test {
   }
 
   @Route('/test/:id(\\d+)')
-  @useMiddleware(m)
+  // @useMiddleware(m)
   @State(Count)
   go(context: SetupContext) {
     const ctx = useApplicationContext<TCount>();
-    // onMounted(() => console.log('in'))
+    onMounted(() => console.log('in'))
+    onUnmounted(() => console.log('out'))
     // useContextEffect(() => {
     //   console.log('ready');
     //   return () => console.log('destroy')
     // })
     return () => h('div', null, {
-      default: () => ['status: ' + ctx.status + '-' + ctx.state.count, h('p', {
-        onClick() {
-          ctx.value.redirect('/');
-        }
-      }, 'test'), h('span', {
-        onClick: () => ctx.value.redirect('/test/' + (Number(ctx.params.id) + 1))
-      }, ctx.params.id)]
+      default: () => [
+        'test', 
+        h('button', {
+          onClick() {
+            ctx.value.redirect('/test/' + (Number(ctx.params.id) + 1))
+          }
+        }, 'click'),
+        h('span', null, ctx.params.id)
+      ]
     });
   }
 }

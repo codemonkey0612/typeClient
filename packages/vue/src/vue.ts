@@ -1,7 +1,7 @@
 import { Application, Context, TAnnotationScanerMethod, TApplicationOptions } from '@typeclient/core';
 import { createApp, defineComponent, onMounted, h, DefineComponent, shallowRef, Ref } from 'vue';
 import { NAMESPACE } from './annotations';
-import { useApplicationContext, _ApplicationContext, createReactiveContext, TReactiveContextProps, ReactiveContext } from './context';
+import { useApplicationContext, _ApplicationContext, createReactiveContext } from './context';
 
 export interface TVueApplicationOptions extends TApplicationOptions {
   el: HTMLElement | string
@@ -51,17 +51,19 @@ export class VueApplication extends Application {
           const slot = this._slot$.value;
           const wrapSlot = !ctx 
             ? null 
-            : h(_ApplicationContext.Provider, { value: ctx }, {
-                default: () => [
-                  h(slot)
-                ]
-              });
+            : h(
+                _ApplicationContext.Provider, 
+                { value: ctx }, 
+                { default: () => [slot ? h(slot) : null] }
+              );
 
-          if (template) return h(template, { ctx }, !wrapSlot ? null : {
-            default: () => [h(wrapSlot)]
-          });
+          if (template) return h(
+            template, 
+            { ctx }, 
+            !wrapSlot ? null : { default: () => [wrapSlot] }
+          );
 
-          return wrapSlot ? h(wrapSlot) : null;
+          return wrapSlot;
         };
       }
     })).mount(el);
