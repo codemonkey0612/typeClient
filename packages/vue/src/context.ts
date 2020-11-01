@@ -1,6 +1,7 @@
 import { Context } from "@typeclient/core";
-import { DefineComponent, defineComponent, h, inject, provide, ref, Ref } from "vue";
+import { DefineComponent, defineComponent, h, inject, provide, ref, Ref, UnwrapRef, reactive } from "vue";
 
+type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 type TContextMessager<T = any> = {
   Provider: DefineComponent<{ value: T }>,
   Consumer: DefineComponent,
@@ -67,4 +68,17 @@ export function useContext<T = any>(target: TContextMessager<T>) {
 export const _ApplicationContext = createContext();
 export function useApplicationContext<T extends TReactiveContext = TReactiveContext>() {
   return useContext<T>(_ApplicationContext)
+}
+
+export function createReactiveContext() {
+  return reactive<UnwrapNestedRefs<TReactiveContext>>({
+    value: null,
+    get status() { return this.value?.status; },
+    get error() { return this.value?.error; },
+    get state() { return this.value?.state; },
+    get req() { return this.value?.req; },
+    get query() { return this.req?.query; },
+    get params() { return this.req?.params; },
+    get app() { return this.value?.app; },
+  });
 }

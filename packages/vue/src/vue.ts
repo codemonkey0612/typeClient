@@ -1,9 +1,7 @@
 import { Application, Context, TAnnotationScanerMethod, TApplicationOptions } from '@typeclient/core';
-import { createApp, defineComponent, onMounted, h, DefineComponent, shallowRef, Ref, reactive, UnwrapRef } from 'vue';
+import { createApp, defineComponent, onMounted, h, DefineComponent, shallowRef, Ref } from 'vue';
 import { NAMESPACE } from './annotations';
-import { useApplicationContext, _ApplicationContext, TReactiveContext } from './context';
-
-type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
+import { useApplicationContext, _ApplicationContext, createReactiveContext } from './context';
 
 export interface TVueApplicationOptions extends TApplicationOptions {
   el: HTMLElement | string
@@ -11,7 +9,7 @@ export interface TVueApplicationOptions extends TApplicationOptions {
 
 export class VueApplication extends Application {
   public readonly FCS: WeakMap<any, Map<string, DefineComponent<any, any, any>>> = new WeakMap();
-  private _context$ = this.createReactiveContext();
+  private _context$ = createReactiveContext();
   private _template$: Ref<DefineComponent> = shallowRef(null);
   private _slot$: Ref<DefineComponent> = shallowRef(null);
 
@@ -25,19 +23,6 @@ export class VueApplication extends Application {
       this._template$.value = null;
     });
     this.installContextTask();
-  }
-
-  private createReactiveContext() {
-    return reactive<UnwrapNestedRefs<TReactiveContext>>({
-      value: null,
-      get status() { return this.value?.status; },
-      get error() { return this.value?.error; },
-      get state() { return this.value?.state; },
-      get req() { return this.value?.req; },
-      get query() { return this.req?.query; },
-      get params() { return this.req?.params; },
-      get app() { return this.value?.app; },
-    });
   }
 
   private installContextTask() {
