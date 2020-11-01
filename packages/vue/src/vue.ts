@@ -18,7 +18,6 @@ export class VueApplication extends Application {
     this.on('Application.onInit', next => this.setup(options.el, next));
     this.on('Application.onRender', (ctx, server, key, metadata) => this.render(ctx, server, key, metadata));
     this.on('Application.onErrorRender', (node: any) => {
-      console.log('in err')
       this._slot$.value = node;
       this._template$.value = null;
     });
