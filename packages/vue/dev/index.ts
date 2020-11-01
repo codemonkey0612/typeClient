@@ -9,10 +9,14 @@ class Templates implements ComponentTransform {
     onMounted(() => console.log('template mounted'));
     onUnmounted(() => console.log('template unmounted'))
     return () => {
-      return h('div', null, [
-        h('p', null, 'hello'),
-        context.slots.default(),
-      ])
+      return h('div', null, {
+        default: () => [
+          h('p', null, {
+            default: () => ['hello']
+          }),
+          context.slots.default && context.slots.default()
+        ]
+      })
     }
   }
 }
@@ -21,7 +25,9 @@ class Templates implements ComponentTransform {
 class ZZZ implements ComponentTransform {
   setup(props: unknown, context: SetupContext) {
     return () => {
-      return h('div', null, 'my name is evio')
+      return h('div', null, {
+        default: () => ['my name is evio']
+      })
     }
   }
 }
@@ -40,16 +46,20 @@ class test {
     const ctx = useApplicationContext();
     const Z = useComponent(this.z)
     return () => h('div', {
-      onClick: () => ctx.redirect('/test'),
-    }, ['world', h(Z)])
+      onClick: () => ctx.value.redirect('/test/1'),
+    }, {
+      default: () => ['world', h(Z)]
+    })
   }
 
-  @Route('/test')
+  @Route('/test/:id(\\d+)')
   go() {
     const ctx = useApplicationContext();
     return () => h('div', {
-      onClick: () => ctx.redirect('/'),
-    }, 'test');
+      onClick: () => ctx.value.redirect('/test/' + (Number(ctx.params.id) + 1)),
+    }, {
+      default: () => ['test', h('span', null, ctx.params.id)]
+    });
   }
 }
 
@@ -57,17 +67,18 @@ app.setController(test);
 
 bootstrp();
 
-// import { createApp, defineComponent, h, inject, provide } from 'vue';
-// const a = Symbol();
-// const aa = defineComponent((props: { a: number }, ctx) => {
+// import { createApp, defineComponent, h, ref, toRaw } from 'vue';
+// import { createContext } from '../src';
+
+// const ass = createContext<any>();
+
+// const aa = defineComponent((props, ctx) => {
 //   return () => h('div', null, 'rrr')
 // })
 // const bb = defineComponent({
 //   setup() {
-//     const v = inject(a);
-    
 //     return function() {
-//       return h('div', null, 'eee' + v)
+//       return h('div', null, 'eee')
 //     }
 //   }
 // })
@@ -75,8 +86,17 @@ bootstrp();
 // const app = defineComponent({
 //   name: 'xxx',
 //   setup() {
-//     provide(a, 123);
-//     return () => h('div', null, ['jee', h(aa, { a: 123 }), h(bb)])
+//     const v = ref<any>(aa);
+    
+//     return () => {
+//       console.log('v:', v.value)
+//       const children = h(v.value);
+//       return h('div', null, h(ass.Provider, null, [h('p', null, 'jee'), h('button', {
+//         onClick() {
+//           v.value = toRaw(v.value) === aa ? bb : aa;
+//         }
+//       }, 'click'), children]))
+//     }
 //   }
 // });
 

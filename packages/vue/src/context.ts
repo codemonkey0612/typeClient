@@ -6,14 +6,26 @@ type TContextMessager<T = any> = {
   Consumer: DefineComponent,
 }
 
+export interface TReactiveContext<T extends object = {}> {
+  readonly req: Context<T>['req'],
+  readonly app: Context<T>['app'],
+  readonly state: Context<T>['state'],
+  readonly query: Context<T>['req']['query'],
+  readonly params: Context<T>['req']['params'],
+  readonly error: Context<T>['error'],
+  readonly status: Context<T>['status'],
+  value: Context<T>,
+}
+
 const contextMap: WeakMap<TContextMessager, symbol> = new WeakMap();
 
 export function createContext<T = any>(defaultValue: T = null) {
-  const key = Symbol('app');
+  const key = Symbol();
   const messager: TContextMessager<T> = { Provider: null, Consumer: null };
 
   // @ts-ignore
   messager.Provider = defineComponent({
+    name: 'ContextProvider',
     props: {
       value: {
         required: true,
@@ -24,15 +36,22 @@ export function createContext<T = any>(defaultValue: T = null) {
       provide(key, _ref);
       return () => {
         // @ts-ignore
-        _ref.value = props.value;
-        return h(context.slots.default)
+        props.value && (_ref.value = props.value);
+        return context.slots.default 
+          ? h(context.slots.default) 
+          : null;
       };
     }
   });
 
   // @ts-ignore
-  messager.Consumer = defineComponent((props, context) => {
-    return () => h(context.slots.default(useContext<T>(messager)));
+  messager.Consumer = defineComponent({
+    name: 'ContextConsumer',
+    setup(props, context) {
+      return () => context.slots.default 
+        ? h(context.slots.default(useContext<T>(messager))) 
+        : null;
+    }
   });
 
   contextMap.set(messager, key);
@@ -46,6 +65,6 @@ export function useContext<T = any>(target: TContextMessager<T>) {
 }
 
 export const _ApplicationContext = createContext();
-export function useApplicationContext<T extends Context = Context>() {
+export function useApplicationContext<T extends TReactiveContext = TReactiveContext>() {
   return useContext<T>(_ApplicationContext)
 }

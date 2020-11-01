@@ -1,9 +1,7 @@
 import Url from 'url-parse';
 
-export type TRequestParams = { [key: string]: string };
-
 export class Request extends Url {
-  public params: TRequestParams = {};
+  public params: Record<string, string> = {};
   // request method using 'GET' by default
   public readonly method = 'GET';
 

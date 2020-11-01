@@ -17,6 +17,7 @@ export function Component() {
 }
 
 export declare class ComponentTransform<T = any> {
+  public readonly name?: string;
   public readonly props?: T;
   public setup: (props: Readonly<T>, ctx: SetupContext) => () => VNode;
 }
@@ -27,7 +28,10 @@ export function useComponent<T extends ComponentTransform>(component: T, Props?:
   const isComponent = instance.got(NAMESPACE.COMPONENT, false);
   if (!isComponent) throw new Error('component is not an iocComponent');
   if (stacks.has(constructor)) return stacks.get(constructor);
-  const props = Props || component.props;
-  stacks.set(constructor, defineComponent({ props, setup: component.setup.bind(component) }));
+  stacks.set(constructor, defineComponent({ 
+    props: Props || component.props, 
+    setup: component.setup.bind(component), 
+    name: constructor.name || component.name 
+  }));
   return stacks.get(constructor);
 }

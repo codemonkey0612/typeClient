@@ -1,36 +1,43 @@
 import { Application, Context, TAnnotationScanerMethod, TApplicationOptions } from '@typeclient/core';
-import { createApp, defineComponent, onMounted, h, reactive, DefineComponent } from 'vue';
+import { createApp, defineComponent, onMounted, h, DefineComponent, shallowRef, Ref, reactive, UnwrapRef } from 'vue';
 import { NAMESPACE } from './annotations';
-import { useApplicationContext, _ApplicationContext } from './context';
+import { useApplicationContext, _ApplicationContext, TReactiveContext } from './context';
 
-type TVueRootData<T extends Context = Context> = {
-  context: T,
-  template: any,
-  slot: DefineComponent<T>
-}
+type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 
 export interface TVueApplicationOptions extends TApplicationOptions {
   el: HTMLElement | string
 }
 
 export class VueApplication extends Application {
-  public readonly FCS: WeakMap<any, Map<string, any>> = new WeakMap();
-  public readonly state = reactive<TVueRootData>({
-    context: null,
-    template: null,
-    slot: null,
-  });
+  public readonly FCS: WeakMap<any, Map<string, DefineComponent<any, any, any>>> = new WeakMap();
+  private _context$ = this.createReactiveContext();
+  private _template$: Ref<DefineComponent> = shallowRef(null);
+  private _slot$: Ref<DefineComponent> = shallowRef(null);
 
   constructor(options: TVueApplicationOptions) {
     super(options);
     this.on('Application.onInit', next => this.setup(options.el, next));
     this.on('Application.onRender', (ctx, server, key, metadata) => this.render(ctx, server, key, metadata));
     this.on('Application.onErrorRender', (node: any) => {
-      this.state.context = null;
-      this.state.slot = node;
-      this.state.template = null;
+      this._slot$.value = node;
+      this._context$.value = null;
+      this._template$.value = null;
     });
     this.installContextTask();
+  }
+
+  private createReactiveContext() {
+    return reactive<UnwrapNestedRefs<TReactiveContext>>({
+      value: null,
+      get status() { return this.value?.status; },
+      get error() { return this.value?.error; },
+      get state() { return this.value?.state; },
+      get req() { return this.value?.req; },
+      get query() { return this.req?.query; },
+      get params() { return this.req?.params; },
+      get app() { return this.value?.app; },
+    });
   }
 
   private installContextTask() {
@@ -50,28 +57,41 @@ export class VueApplication extends Application {
   }
 
   private setup(el: TVueApplicationOptions['el'], next: () => void) {
-    createApp(defineComponent(() => {
-      onMounted(next);
-      return () => {
-        const children = !this.state.context ? null : this.state.template
-          // @ts-ignore
-          ? h(this.state.template, null, h(this.state.slot))
-          // @ts-ignore
-          : h(this.state.slot);
-        return h(_ApplicationContext.Provider, { value: this.state.context }, children);
-      };
+    createApp(defineComponent({
+      name: 'Root',
+      setup: () => {
+        onMounted(next);
+        return () => {
+          const ctx = this._context$;
+          const template = this._template$.value;
+          const slot = this._slot$.value;
+          const wrapSlot = !ctx 
+            ? null 
+            : h(_ApplicationContext.Provider, { value: ctx }, {
+                default: () => [
+                  h(slot)
+                ]
+              });
+
+          if (template) return h(template, null, {
+            default: () => [h(wrapSlot)]
+          });
+
+          return h(wrapSlot);
+        };
+      }
     })).mount(el);
   }
 
-  private render(ctx: Context, server: any, key: string, metadata: TAnnotationScanerMethod) {
+  private render<T extends Context = Context>(ctx: T, server: any, key: string, metadata: TAnnotationScanerMethod) {
     const classModuleMetaData = metadata.meta.parent;
     const TemplateComponent = classModuleMetaData.got<any>(NAMESPACE.TEMPLATE, null);
     const SlotComponent = this.getSlot(server, key);
 
     // @ts-ignore
-    this.state.context = ctx || null;
-    this.state.slot = SlotComponent || null;
-    this.state.template = TemplateComponent || null;
+    this._context$.value = ctx;
+    this._slot$.value = SlotComponent || null;
+    this._template$.value = TemplateComponent || null;
   }
 
   private getSlot(server: any, key: string) {
@@ -79,16 +99,23 @@ export class VueApplication extends Application {
     if (!this.FCS.has(constructor)) this.FCS.set(constructor, new Map());
     const fcs = this.FCS.get(constructor);
     if (!fcs.has(key)) {
-      const checker = defineComponent(() => {
-        const ctx = useApplicationContext();
-        const status = ctx.status;
-        const error = ctx.error;
-        return () => {
-          if (status.value === 500) return error.value ? h(error.value) : null;
-          return h(defineComponent(server[key].bind(server)));
+      const name = constructor.name || 'UnTitledClass';
+      const Wrapper = defineComponent({
+        name: name + 'Wrapper',
+        setup: () => {
+          const ctx = useApplicationContext();
+          const status = ctx.status;
+          const error = ctx.error;
+          return () => {
+            if (status.value === 500) return error.value ? h(error.value) : null;
+            return h(defineComponent({
+              name: name + 'Route' + key,
+              setup: server[key].bind(server),
+            }));
+          }
         }
       });
-      fcs.set(key, checker);
+      fcs.set(key, Wrapper);
     }
     return fcs.get(key);
   }

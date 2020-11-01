@@ -29,7 +29,8 @@ const path = require('path');
     devServer: {
       historyApiFallback: true,
       contentBase: resolve('dist'),
-      port: 9000
+      port: 9000,
+      disableHostCheck: true,
     }
   };
   
