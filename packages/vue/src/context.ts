@@ -1,5 +1,5 @@
-import { Context } from "@typeclient/core";
-import { DefineComponent, defineComponent, h, inject, provide, ref, Ref, UnwrapRef, reactive } from "vue";
+import { Application, Context, Request } from "@typeclient/core";
+import { DefineComponent, defineComponent, h, inject, provide, ref, Ref, UnwrapRef, reactive, toRaw } from "vue";
 
 type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 type TContextMessager<T = any> = {
@@ -13,9 +13,24 @@ export interface TReactiveContext<T extends object = {}> {
   readonly state: Context<T>['state'],
   readonly query: Context<T>['req']['query'],
   readonly params: Context<T>['req']['params'],
-  readonly error: Context<T>['error'],
-  readonly status: Context<T>['status'],
+  readonly error: any,
+  readonly status: number,
   value: Context<T>,
+}
+
+export type TReactiveContextProps = { ctx: TReactiveContext };
+
+export const ReactiveContext = {
+  req: Request,
+  app: Application,
+  state: Object,
+  query: Object,
+  params: Object,
+  error: {
+    required: false,
+  },
+  status: Number,
+  value: Context,
 }
 
 const contextMap: WeakMap<TContextMessager, symbol> = new WeakMap();
@@ -66,8 +81,8 @@ export function useContext<T = any>(target: TContextMessager<T>) {
 }
 
 export const _ApplicationContext = createContext();
-export function useApplicationContext<T extends TReactiveContext = TReactiveContext>() {
-  return useContext<T>(_ApplicationContext)
+export function useApplicationContext<T extends object = {}>() {
+  return useContext<TReactiveContext<T>>(_ApplicationContext)
 }
 
 export function createReactiveContext() {

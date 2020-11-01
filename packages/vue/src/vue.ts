@@ -1,7 +1,7 @@
 import { Application, Context, TAnnotationScanerMethod, TApplicationOptions } from '@typeclient/core';
 import { createApp, defineComponent, onMounted, h, DefineComponent, shallowRef, Ref } from 'vue';
 import { NAMESPACE } from './annotations';
-import { useApplicationContext, _ApplicationContext, createReactiveContext } from './context';
+import { useApplicationContext, _ApplicationContext, createReactiveContext, TReactiveContextProps, ReactiveContext } from './context';
 
 export interface TVueApplicationOptions extends TApplicationOptions {
   el: HTMLElement | string
@@ -18,8 +18,8 @@ export class VueApplication extends Application {
     this.on('Application.onInit', next => this.setup(options.el, next));
     this.on('Application.onRender', (ctx, server, key, metadata) => this.render(ctx, server, key, metadata));
     this.on('Application.onErrorRender', (node: any) => {
+      console.log('in err')
       this._slot$.value = node;
-      this._context$.value = null;
       this._template$.value = null;
     });
     this.installContextTask();
@@ -58,11 +58,11 @@ export class VueApplication extends Application {
                 ]
               });
 
-          if (template) return h(template, null, {
+          if (template) return h(template, { ctx }, !wrapSlot ? null : {
             default: () => [h(wrapSlot)]
           });
 
-          return h(wrapSlot);
+          return wrapSlot ? h(wrapSlot) : null;
         };
       }
     })).mount(el);
@@ -84,18 +84,16 @@ export class VueApplication extends Application {
     if (!this.FCS.has(constructor)) this.FCS.set(constructor, new Map());
     const fcs = this.FCS.get(constructor);
     if (!fcs.has(key)) {
-      const name = constructor.name || 'UnTitledClass';
+      const name = constructor.name || 'UntitledClass';
       const Wrapper = defineComponent({
         name: name + 'Wrapper',
         setup: () => {
           const ctx = useApplicationContext();
-          const status = ctx.status;
-          const error = ctx.error;
           return () => {
-            if (status.value === 500) return error.value ? h(error.value) : null;
+            if (ctx.status === 500) return ctx.error ? h(ctx.error) : null;
             return h(defineComponent({
               name: name + 'Route' + key,
-              setup: server[key].bind(server),
+              setup(props, context) { return server[key](context); },
             }));
           }
         }

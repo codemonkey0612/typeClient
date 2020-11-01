@@ -3,7 +3,7 @@ import { Context } from "../context";
 import { TAnnotationScanerMethod, NAMESPACE, TClassIndefiner } from "../../annotation";
 import { TypeClientContainer } from "../../ioc";
 
-export declare class MiddlewareTransform<C extends Context> {
+export declare class MiddlewareTransform<C extends Context = Context> {
   use(context: C, next: ComposeNextCallback): Promise<unknown>;
 }
 

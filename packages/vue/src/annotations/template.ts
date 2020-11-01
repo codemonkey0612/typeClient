@@ -2,6 +2,7 @@ import { ClassMetaCreator, TClassIndefiner, TypeClientContainer, AnnotationDepen
 import { NAMESPACE } from './namespace';
 import { ComponentTransform, useComponent } from './component';
 import { Component } from 'vue';
+import { ReactiveContext, TReactiveContextProps } from '../context';
 export function Template<M extends ComponentTransform, T extends Component>(component: M | T): ClassDecorator {
   return target => {
     // @ts-ignore
@@ -12,7 +13,7 @@ export function Template<M extends ComponentTransform, T extends Component>(comp
         AnnotationDependenciesAutoRegister(component as TClassIndefiner<M>, TypeClientContainer);
         // @ts-ignore
         const typedComponent = TypeClientContainer.get<M>(component);
-        const _component = useComponent(typedComponent);
+        const _component = useComponent(typedComponent, { ctx: ReactiveContext });
         return ClassMetaCreator.define(NAMESPACE.TEMPLATE, _component)(target);
       }
     } else {
@@ -20,3 +21,5 @@ export function Template<M extends ComponentTransform, T extends Component>(comp
     }
   }
 }
+
+export declare interface TemplateTransform extends ComponentTransform<TReactiveContextProps> {}
