@@ -11,6 +11,7 @@ export class Context<T extends object = {}> {
   public readonly app: Application<any>;
   public readonly state: UnwrapNestedRefs<T>;
   public readonly query: Record<string, string>;
+  public readonly params: Record<string, string>;
   public readonly id: number;
   public readonly $e = mitt();
   public readonly self = this;
@@ -18,15 +19,13 @@ export class Context<T extends object = {}> {
   public status: Ref<100 | 200 | 500 | 900 | 302> = ref(100);
   private readonly rejections: ((e?: any) => void)[] = [];
   public readonly callbacks: (() => void)[] = [];
-  public get params() {
-    return this.req.params;
-  };
 
   constructor(app: Application<any>, req: Request, data: T) {
     this.app = app;
     this.req = req;
     this.state = reactive(data);
     this.query = this.req.query;
+    this.params = this.req.params;
     this.id = index++;
     this.onHashAnchor();
   }
