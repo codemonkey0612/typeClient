@@ -8,6 +8,7 @@ class m implements MiddlewareTransform<Context> {
   async use(ctx: Context<TCount>, next: ComposeNextCallback) {
     await new Promise(resolve => setTimeout(resolve, 2000));
     ctx.state.count++;
+    throw new Error('eee')
     await next();
   }
 }

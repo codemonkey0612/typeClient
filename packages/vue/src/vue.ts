@@ -86,21 +86,35 @@ export class VueApplication extends Application {
     const fcs = this.FCS.get(constructor);
     if (!fcs.has(key)) {
       const name = constructor.name || 'UntitledClass';
+      const ErrorComponent = this.getErrorComponent();
       const Wrapper = defineComponent({
         name: name + 'Wrapper',
         setup: () => {
-          const ctx = useApplicationContext();
           return () => {
-            if (ctx.status === 500) return ctx.error ? h(ctx.error) : null;
-            return h(defineComponent({
-              name: name + 'Route' + key,
-              setup(props, context) { return server[key](context); },
-            }));
+            return h(ErrorComponent, null, {
+              default: () => h(defineComponent({
+                name: name + 'Route' + key,
+                setup(props, context) { return server[key](context); },
+              }))
+            });
           }
         }
       });
       fcs.set(key, Wrapper);
     }
     return fcs.get(key);
+  }
+
+  private getErrorComponent() {
+    return defineComponent((props, context) => {
+      const ctx = useApplicationContext();
+      return () => {
+        if (ctx.status === 500) {
+          return ctx.error ? h(ctx.error) : null;
+        } else {
+          return context.slots.default ? h(context.slots.default) : null;
+        }
+      }
+    })
   }
 }
