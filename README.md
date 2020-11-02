@@ -3,16 +3,25 @@
 A progressive front-end development framework
 
 - [Document](https://flowxjs.github.io/TypeClient)
-- [React Example1](https://codesandbox.io/s/github/flowxjs/TypeClientReactTemplate)
-- [React Example2](https://codesandbox.io/s/github/flowxjs/TypeClientReactSingleAppTempalte)
-- [React Example3](https://codesandbox.io/s/github/flowxjs/TypeClient-Demo-Editor)
-- [Vue Example1](https://github.com/flowxjs/TypeClientVueTemplate)
 - TypeScript support.
 - iOC and AOP support.
 
-## usage
+## Template
 
-Route React Template:
+**React:**
+
+- [React App](https://github.com/flowxjs/TypeClientReactTemplate)
+- [React Single App](https://github.com/flowxjs/TypeClientReactSingleAppTempalte)
+- [React Vite App](https://github.com/flowxjs/TypeClientViteReactTemplate)
+
+**Vue:**
+
+- [Vue App](https://github.com/flowxjs/TypeClientVueTemplate)
+- [Vue Vite App](https://github.com/flowxjs/TypeClientViteVueTemplate)
+
+## Usage
+
+**React App:**
 
 ```bash
 $ git clone git@github.com:flowxjs/TypeClientReactTemplate.git
@@ -22,7 +31,7 @@ $ npm ci
 $ npm start
 ```
 
-Or Single React App Template:
+**React Single App:**
 
 ```bash
 $ git clone git@github.com:flowxjs/TypeClientReactSingleAppTempalte.git
@@ -32,7 +41,17 @@ $ npm ci
 $ npm start
 ```
 
-Or Vue Template
+**React Vite App:**
+
+```bash
+$ git clone git@github.com:flowxjs/TypeClientViteReactTemplate.git
+$ cd TypeClientViteReactTemplate
+$ rm -rf .git
+$ npm ci
+$ npm run dev
+```
+
+**Vue App:**
 
 ```bash
 $ git clone git@github.com:flowxjs/TypeClientVueTemplate.git
@@ -40,6 +59,16 @@ $ cd TypeClientVueTemplate
 $ rm -rf .git
 $ npm ci
 $ npm run serve
+```
+
+**Vue Vite App:**
+
+```bash
+$ git clone git@github.com:flowxjs/TypeClientViteVueTemplate.git
+$ cd TypeClientViteVueTemplate
+$ rm -rf .git
+$ npm ci
+$ npm run dev
 ```
 
 
