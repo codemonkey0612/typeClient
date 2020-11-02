@@ -1,6 +1,6 @@
 import { bootstrp, ComposeNextCallback, Context, Controller, inject, Middleware, MiddlewareTransform, Route, State, useMiddleware } from '@typeclient/core';
 import { h, onMounted, onUnmounted, SetupContext } from 'vue';
-import { TReactiveContext, TReactiveContextProps, useApplicationContext, useContextEffect, VueApplication } from '../src';
+import { Suspense, TReactiveContextProps, useApplicationContext, VueApplication } from '../src';
 import { Component, ComponentTransform, Template, TemplateTransform, useComponent } from '../src/annotations';
 
 @Middleware()
@@ -8,7 +8,6 @@ class m implements MiddlewareTransform<Context> {
   async use(ctx: Context<TCount>, next: ComposeNextCallback) {
     await new Promise(resolve => setTimeout(resolve, 2000));
     ctx.state.count++;
-    throw new Error('eee')
     await next();
   }
 }
@@ -73,7 +72,7 @@ class test {
     //   console.log('ready');
     //   return () => console.log('destroy')
     // })
-    return () => h('div', null, {
+    return () => h(Suspense, null, {
       default: () => [
         'test', 
         h('button', {
@@ -82,6 +81,9 @@ class test {
           }
         }, 'click'),
         h('span', null, ctx.params.id)
+      ],
+      loading: () => [
+        h('div', null, 'loading...')
       ]
     });
   }
