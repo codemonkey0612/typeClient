@@ -6,7 +6,7 @@ A progressive front-end development framework
 - [React Example1](https://codesandbox.io/s/github/flowxjs/TypeClientReactTemplate)
 - [React Example2](https://codesandbox.io/s/github/flowxjs/TypeClientReactSingleAppTempalte)
 - [React Example3](https://codesandbox.io/s/github/flowxjs/TypeClient-Demo-Editor)
-- [Vue Example1](https://codesandbox.io/s/github/flowxjs/TypeClientVueTemplate)
+- [Vue Example1](https://github.com/flowxjs/TypeClientVueTemplate)
 - TypeScript support.
 - iOC and AOP support.
 
