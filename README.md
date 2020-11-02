@@ -13,6 +13,7 @@ A progressive front-end development framework
 - [React App](https://github.com/flowxjs/TypeClientReactTemplate)
 - [React Single App](https://github.com/flowxjs/TypeClientReactSingleAppTempalte)
 - [React Vite App](https://github.com/flowxjs/TypeClientViteReactTemplate)
+- [React Vite Single App](https://github.com/flowxjs/TypeClientViteReactSingleAppTemplate)
 
 **Vue:**
 
@@ -46,6 +47,16 @@ $ npm start
 ```bash
 $ git clone git@github.com:flowxjs/TypeClientViteReactTemplate.git
 $ cd TypeClientViteReactTemplate
+$ rm -rf .git
+$ npm ci
+$ npm run dev
+```
+
+**React Vite App:**
+
+```bash
+$ git clone git@github.com:flowxjs/TypeClientViteReactSingleAppTemplate.git
+$ cd TypeClientViteReactSingleAppTemplate
 $ rm -rf .git
 $ npm ci
 $ npm run dev
