@@ -106,9 +106,9 @@ export class ReactApplication extends Application {
   public render<T extends ComponentTransform>(component: TClassIndefiner<T>) {
     const classMetadata = AnnotationMetaDataScan(component, TypeClientContainer);
     const classInjectors = classMetadata.meta.got<TClassIndefiner<any>[]>(NAMESPACE.INJECTABLE, []);
-    const States = classMetadata.meta.got<object | (() => object)>(VNAMESPACE.STATE, {});
+    const States = classMetadata.meta.got<object | (() => object)>(NAMESPACE.STATE, {});
     const Middlewares = classMetadata.meta.got(NAMESPACE.MIDDLEWARE, []);
-    const Created = classMetadata.meta.got(VNAMESPACE.CREATED, []);
+    const Created = classMetadata.meta.got(NAMESPACE.CONTEXTCREATED, []);
     const Exception = classMetadata.meta.got(NAMESPACE.EXCEPTION, null);
     this.injectClassModules(...classInjectors);
     @Controller()
