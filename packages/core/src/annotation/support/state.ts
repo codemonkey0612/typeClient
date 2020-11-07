@@ -2,9 +2,9 @@ import { ClassMetaCreator, MethodMetaCreator } from "../implemention";
 import { NAMESPACE } from "./namespace";
 
 export function State<T = any>(state: T | (() => T)) {
-  return <T>(target: Object | Function, property?: string | symbol, descripor?: TypedPropertyDescriptor<T>) => {
-    if (!property) return ClassMetaCreator.define(NAMESPACE.STATE, state || {})(target as Function);
-    return MethodMetaCreator.define(NAMESPACE.STATE, state || {})(target as Object, property, descripor);
+  return <T>(target: any, property?: string | symbol, descripor?: TypedPropertyDescriptor<T>) => {
+    if (!property) return ClassMetaCreator.define(NAMESPACE.STATE, state || {})(target);
+    return MethodMetaCreator.define(NAMESPACE.STATE, state || {})(target, property, descripor);
   }
 }
 
