@@ -1,6 +1,6 @@
 {
   "name": "@typeclient/vue",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "typeclient vue",
   "author": "",
   "homepage": "https://github.com/flowxjs/TypeClient",
@@ -22,7 +22,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@typeclient/core": "^1.2.19",
+    "@typeclient/core": "^1.2.20",
     "vue": "^3.0.2"
   }
 }
