@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import ReactDOM from 'react-dom';
 import { TReactPortalContext, CreateGlobalComponent } from './component';
 import { ContextProvider, useReactiveState } from './reactive';
-import { ComponentTransform, useComponent, NAMESPACE as VNAMESPACE } from './annotations';
+import { ComponentTransform, useComponent } from './annotations';
 import { 
   State, 
   AnnotationMetaDataScan, 
