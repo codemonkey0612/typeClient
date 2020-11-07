@@ -7,6 +7,6 @@ export enum NAMESPACE {
   INJECTABLE = 'TypeClient.NAMESPACE.HTTP.Controller.Injectable',
   INTERCEPTOR = 'TypeClient.NAMESPACE.HTTP.Controller.Interceptor',
   STATE = 'TypeClient.NAMESPACE.HTTP.Controller.State',
-  CONTEXTCREATED = 'TypeClient.NAMESPACE.HTTP.Context.Created',
+  CONTEXTCREATED = 'TypeClient.NAMESPACE.HTTP.Context.Create',
   ACTION = 'TypeClient.NAMESPACE.HTTP.Context.Action',
 }
