@@ -1,10 +1,24 @@
 import React, { FunctionComponent } from 'react';
 import ReactDOM from 'react-dom';
-import { AnnotationMetaDataScan, Application, bootstrp, ClassMetaCreator, Context, Controller, inject, NAMESPACE, onContextCreated, Route, TClassIndefiner, TypeClientContainer, unSubscribe, useException, useMiddleware } from '@typeclient/core';
 import { TReactPortalContext, CreateGlobalComponent } from './component';
 import { ContextProvider, useReactiveState } from './reactive';
 import { ComponentTransform, useComponent, NAMESPACE as VNAMESPACE } from './annotations';
-import { State } from '@typeclient/core';
+import { 
+  State, 
+  AnnotationMetaDataScan, 
+  Application, 
+  Context, 
+  Controller, 
+  inject, 
+  NAMESPACE, 
+  onContextCreated, 
+  Route, 
+  TClassIndefiner, 
+  TypeClientContainer, 
+  unSubscribe, 
+  useException, 
+  useMiddleware 
+} from '@typeclient/core';
 
 export class ReactApplication extends Application {
   public readonly FCS: WeakMap<any, Map<string, React.FunctionComponent<any>>> = new WeakMap();
@@ -101,9 +115,11 @@ export class ReactApplication extends Application {
     class main {
       @inject(component) private readonly component: T;
       @Route()
+      // @ts-ignore
       @State(States)
       @useMiddleware(...Middlewares)
       @useException(Exception)
+      // @ts-ignore
       @onContextCreated(...Created)
       Page<T extends Context>(props: T) {
         const Component = useComponent(this.component) as React.FunctionComponent<T>;

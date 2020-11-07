@@ -8,4 +8,5 @@ export * from './middleware';
 export * from './exception';
 export * from './redirect';
 export * from './context-created';
+export * from './action';
 export { inject } from 'inversify';

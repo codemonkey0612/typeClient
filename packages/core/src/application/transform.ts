@@ -18,7 +18,7 @@ export async function ContextTransforming<T extends object = {}>(
   }).catch(async e => {
     if (typeof e === 'function') {
       // side effect;
-      e();
+      return e();
     } else if (ctx.status.value === 100) {
       const consumer = new ExceptionConsumer();
       ctx.error.value = await consumer.catch(e, method, ctx);
@@ -27,25 +27,19 @@ export async function ContextTransforming<T extends object = {}>(
   });
 }
 
-export async function RedirectionTransforing<T extends object = {}>(
+export async function ActionTransforming<T extends object = {}>(
   ctx: Context<T>, 
   method: TAnnotationScanerMethod, 
   server: any, 
   key: string,
-  defaultUrl?: string | boolean
+  callbacks: ((ctx: Context<T>, result: any) => Promise<void>)[]
 ) {
+  let result: any;
   const middlewareConsumer = new MiddlewareTransforms();
-  let url: string = null;
   await middlewareConsumer.common(ctx, method, async (ctx, next) => {
-    url = await Promise.resolve(server[key](ctx));
+    result = await Promise.resolve(server[key](ctx));
     await next();
   });
   ctx.status.value = 200;
-  if (typeof url === 'string') {
-    ctx.replace(url);
-  } else if (typeof defaultUrl === 'string') {
-    ctx.replace(defaultUrl);
-  } else {
-    throw new Error('Redirection Function must return a value of string.');
-  }
+  await Promise.all(callbacks.map(callback => callback(ctx, result)));
 }

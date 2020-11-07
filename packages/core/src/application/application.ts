@@ -7,7 +7,7 @@ import { Context } from './context';
 import { createNextTick } from '../history/next-tick';
 import { ContextEventEmitter } from './events';
 import { TApplicationLifeCycle } from './lifecycle';
-import { ContextTransforming as transforming, RedirectionTransforing as redrecting } from './transform';
+import { ActionTransforming, ContextTransforming } from './transform';
 import { Request } from './request';
 import { ComposeMiddleware } from './compose';
 import { MiddlewareTransform } from './transforms';
@@ -202,8 +202,8 @@ export class Application<S extends {
       if (!propertyPaths.length) continue;
       const propertyInjectors = method.meta.got<TClassIndefiner<any>[]>(NAMESPACE.INJECTABLE, []);
       const propertyStates = method.meta.got<object | (() => object)>(NAMESPACE.STATE, {});
-      const redirect_url = method.meta.got<string | boolean>(NAMESPACE.REDIRECT, false);
       const contextCreateds = method.meta.got<((ctx: Context<any>) => void)[]>(NAMESPACE.CONTEXTCREATED, []);
+      const actions = method.meta.got<((ctx: Context<any>, data: any) => Promise<void>)[]>(NAMESPACE.ACTION, []);
       // auto register method injectors to container.
       this.injectClassModules(...propertyInjectors);
       propertyPaths.forEach(propertyPath => {
@@ -232,17 +232,15 @@ export class Application<S extends {
                 : propertyStates
             )
           }
-          if (redirect_url) {
-            // It is a Redirection Function.
-            // We use output value or redirect_url for redirecting.
-            redrecting(context, method, server, key, redirect_url).catch(e => {
+          if (actions.length) {
+            ActionTransforming(context, method, server, key, actions).catch(e => {
               this.trigger(
                 'Application.onErrorRender', 
                 this.trigger('Application.onError', e, context)
               );
             })
           } else {
-            transforming(context, method, () => {
+            ContextTransforming(context, method, () => {
               return Promise.resolve(this.trigger(
                 'Application.onRender', 
                 context, server, key, method
