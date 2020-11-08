@@ -17,27 +17,37 @@ import {
   TypeClientContainer, 
   unSubscribe, 
   useException, 
-  useMiddleware 
+  useMiddleware, 
+  TApplicationLifeCycles
 } from '@typeclient/core';
 
-export class ReactApplication extends Application {
+export class ReactApplication extends Application implements TApplicationLifeCycles<React.ReactElement> {
+  private readonly element: HTMLElement;
   public readonly FCS: WeakMap<any, Map<string, React.FunctionComponent<any>>> = new WeakMap();
   private portalDispatcher: React.Dispatch<React.SetStateAction<TReactPortalContext<any>>>;
   constructor(el: HTMLElement) {
     super({ prefix: '/' });
     unSubscribe();
-    this.on('Application.onInit', next => this.applicationWillSetup(el, next));
-    this.on('Application.onRender', (ctx, server, key) => this.applicationRendering(ctx, server, key));
-    this.on('Application.onErrorRender', (node: any) => {
-      if (this.portalDispatcher) {
-        this.portalDispatcher({
-          context: null,
-          component: () => node,
-        })
-      }
-    });
+    this.element = el;
     this.installContextTask();
     this.onNotFound(() => null);
+  }
+
+  applicationInitialize(next: () => void) {
+    return this.applicationWillSetup(this.element, next);
+  }
+
+  applicationErrorRender(node: React.ReactElement) {
+    if (this.portalDispatcher) {
+      this.portalDispatcher({
+        context: null,
+        component: () => node,
+      })
+    }
+  }
+
+  applicationComponentRender(ctx: Context, server: any, key: string) {
+    return this.applicationRendering(ctx, server, key);
   }
 
   private installContextTask() {

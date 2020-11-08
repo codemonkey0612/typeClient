@@ -18,3 +18,5 @@ export function Template<M extends ComponentTransform, T extends React.FunctionC
     }
   }
 }
+
+export const useTemplate = Template;

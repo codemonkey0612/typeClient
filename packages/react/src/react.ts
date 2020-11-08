@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import ReactDOM from 'react-dom';
-import { Application, TApplicationOptions, Context, TAnnotationScanerMethod } from '@typeclient/core';
+import { Application, TApplicationOptions, Context, TAnnotationScanerMethod, TApplicationLifeCycles } from '@typeclient/core';
 import { CreateGlobalComponent, TReactPortalContext } from './components/global';
 import { NAMESPACE } from './annotations';
 import { ContextProvider, useReactiveState } from './reactive';
@@ -10,25 +10,34 @@ export type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 export type TReactApplicationOptions = TApplicationOptions & { el: HTMLElement };
 export type TSlotState = UnwrapNestedRefs<Record<string, React.ReactNode>>;
 
-export class ReactApplication extends Application {
+export class ReactApplication extends Application implements TApplicationLifeCycles<React.ReactElement> {
+  private readonly element: HTMLElement;
   public readonly FCS: WeakMap<any, Map<string, React.FunctionComponent<any>>> = new WeakMap();
   public readonly slotState: TSlotState = reactive({});
   public readonly slotContext: React.Context<TSlotState> = React.createContext(this.slotState);
   private portalDispatcher: React.Dispatch<React.SetStateAction<TReactPortalContext<any>>>;
   constructor(options: TReactApplicationOptions) {
     super(options);
-    this.on('Application.onInit', next => this.applicationWillSetup(options.el, next));
-    this.on('Application.onRender', (ctx, server, key, metadata) => this.applicationRendering(ctx, server, key, metadata));
-    this.on('Application.onErrorRender', (node: any) => {
-      if (this.portalDispatcher) {
-        this.portalDispatcher({
-          context: null,
-          template: null,
-          slot: () => node,
-        })
-      }
-    });
+    this.element = options.el;
     this.installContextTask();
+  }
+
+  public applicationComponentRender(ctx: Context, server: any, key: string, metadata: TAnnotationScanerMethod) {
+    return this.applicationRendering(ctx, server, key, metadata);
+  }
+
+  public applicationErrorRender(node: React.ReactElement) {
+    if (this.portalDispatcher) {
+      this.portalDispatcher({
+        context: null,
+        template: null,
+        slot: () => node,
+      })
+    }
+  }
+
+  public applicationInitialize(next: () => void) {
+    return this.applicationWillSetup(this.element, next);
   }
 
   private installContextTask() {

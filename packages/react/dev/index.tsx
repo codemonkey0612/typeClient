@@ -1,6 +1,6 @@
-import React, { Fragment, useCallback, useEffect, useMemo } from 'react';
-import { ReactApplication, useContextState, Template, Component, useContextEffect, ComponentTransform, useComponent, useSlot, useReactiveState } from '../src';
-import { bootstrp, Controller, Route, State, Context, usePopStateHistoryMode, Redirect, ComposeNextCallback, useMiddleware, onContextCreated } from '@typeclient/core';
+import React, { Fragment } from 'react';
+import { ReactApplication, Template, Component, ComponentTransform, useComponent, useSlot, useReactiveState } from '../src';
+import { bootstrp, Controller, Route, State, Context, usePopStateHistoryMode, ComposeNextCallback, useMiddleware } from '@typeclient/core';
 import { inject } from 'inversify';
 
 
@@ -72,7 +72,7 @@ app.onError((err) => {
 })
 
 app.onNotFound(() => {
-  return <p>Not</p>
+  return <p>Not found</p>
 })
 
 bootstrp();

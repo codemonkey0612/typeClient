@@ -12,16 +12,10 @@ export declare class ExceptionTransfrom<C extends Context> {
 export class ExceptionConsumer<C extends Context> {
   async catch(error: Error, method: TAnnotationScanerMethod, ctx: C) {
     const exception = this.getExceptorsIndefiners(method);
-    if (!exception) return await Promise.resolve(ctx.app.trigger('Application.onError', error, ctx));
+    if (!exception) return await Promise.resolve(ctx.app.getError(error, ctx));
     const target = TypeClientContainer.get<ExceptionTransfrom<C>>(exception);
-    if (!target) return await Promise.resolve(ctx.app.trigger(
-      'Application.onError', 
-      new Error('Cannot find the ioc object on TypeClientContainer.'), 
-      ctx
-    ));
-    return await Promise.resolve(target.catch(error, {
-      ctx, metadata: method,
-    }));
+    if (!target) return await Promise.resolve(ctx.app.getError(new Error('Cannot find the ioc object on TypeClientContainer.'), ctx));
+    return await Promise.resolve(target.catch(error, { ctx, metadata: method }));
   }
   private getExceptorsIndefiners(method: TAnnotationScanerMethod) {
     const parent = method.meta.parent;

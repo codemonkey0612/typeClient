@@ -23,3 +23,5 @@ export function Template<M extends ComponentTransform, T extends Component>(comp
 }
 
 export declare interface TemplateTransform extends ComponentTransform<TReactiveContextProps> {}
+
+export const useTemplate = Template;

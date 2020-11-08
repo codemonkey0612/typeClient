@@ -8,7 +8,7 @@ let index = 0;
 
 export class Context<T extends object = {}> {
   public readonly req: Request;
-  public readonly app: Application<any>;
+  public readonly app: Application;
   public readonly state: UnwrapNestedRefs<T>;
   public readonly query: Record<string, string>;
   public readonly params: Record<string, string>;
@@ -20,7 +20,7 @@ export class Context<T extends object = {}> {
   private readonly rejections: ((e?: any) => void)[] = [];
   public readonly callbacks: (() => void)[] = [];
 
-  constructor(app: Application<any>, req: Request, data: T) {
+  constructor(app: Application, req: Request, data: T) {
     this.app = app;
     this.req = req;
     this.state = reactive(data);
@@ -39,10 +39,7 @@ export class Context<T extends object = {}> {
           this.app.nextTick(null, () => {
             const el = document.getElementById(id);
             if (el) {
-              if (!this.app.has('Application.onHashAnchorChange')) return el.scrollIntoView({
-                behavior: 'smooth',
-              });
-              this.app.trigger('Application.onHashAnchorChange', el);
+              this.app.emitHashAnchor(el);
             }
           })
         }

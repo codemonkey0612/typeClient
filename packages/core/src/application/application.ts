@@ -1,34 +1,30 @@
 import { join } from 'path';
 import { useHistoryFeedback, redirect, replace, reload } from '../history';
-import { TClassIndefiner, AnnotationMetaDataScan, NAMESPACE, AnnotationDependenciesAutoRegister } from '../annotation';
+import { TClassIndefiner, AnnotationMetaDataScan, NAMESPACE, AnnotationDependenciesAutoRegister, TAnnotationScanerMethod } from '../annotation';
 import { TypeClientContainer } from '../ioc';
 import { Router, RouterArguments } from '../router';
 import { Context } from './context';
 import { createNextTick } from '../history/next-tick';
-import { ContextEventEmitter } from './events';
-import { TApplicationLifeCycle } from './lifecycle';
 import { ActionTransforming, ContextTransforming } from './transform';
 import { Request } from './request';
 import { ComposeMiddleware } from './compose';
 import { MiddlewareTransform } from './transforms';
 
-type TNotFound = TApplicationLifeCycle['Application.onNotFound'];
-type TError = TApplicationLifeCycle['Application.onError'];
-type THashAnchor = TApplicationLifeCycle['Application.onHashAnchorChange'];
+type TNotFound = (req: Request) => unknown;
+type TError = <E extends Error = Error, C extends Context = Context>(error: E, context: C) => unknown;
+type THashAnchor = <E extends HTMLElement = HTMLElement>(el: E) => void;
 type TBeforeContextCreateProps = { server: any, key: string | symbol, state: any, next: (state: any) => void };
-export type TApplicationOptions = RouterArguments & { prefix: string };
+export type TApplicationOptions = RouterArguments & { prefix?: string };
 
-export class Application<S extends { 
-  [key: string]: { 
-    arguments: any[], 
-    return: any 
-  } 
-} = {}> extends ContextEventEmitter<TApplicationLifeCycle & S> {
+export class Application {
   private _initialized = false;
   private _subscribed = false;
   private _unSubscribe: ReturnType<typeof useHistoryFeedback>;
   private _beforeContextCreate: (props: TBeforeContextCreateProps) => void;
   private _afterContextCreated: (ctx: Context<any>) => void;
+  private _onNotFoundHandler: TNotFound;
+  private _onErrorHandler: TError;
+  private _onHashChangeHandler: THashAnchor = (el: HTMLElement) => el.scrollIntoView({ behavior: 'smooth' });
 
   public context: Context;
   public readonly prefix: string;
@@ -37,12 +33,8 @@ export class Application<S extends {
 
   // history reload action
   public readonly reload = reload;
-  public readonly nextTick = createNextTick((e: Error, ctx: Context) => {
-    this.trigger(
-      'Application.onErrorRender', 
-      this.trigger('Application.onError', e, ctx)
-    )
-  });
+  // @ts-ignore
+  public readonly nextTick = createNextTick((e: Error, ctx: Context) => this.emitError(e, ctx));
 
   public setBeforeContextCreate(callback: (props: TBeforeContextCreateProps) => void) {
     this._beforeContextCreate = callback;
@@ -55,13 +47,12 @@ export class Application<S extends {
   }
 
   constructor(options: TApplicationOptions = { prefix: '/' }) {
-    super();
     this.prefix = options.prefix || '/';
     this.router = new Router(options);
     this.subscribe();
   }
 
-  use<C extends Context, T extends MiddlewareTransform<C>, M extends TClassIndefiner<T>>(classModule: ComposeMiddleware<C> | M) {
+  public use<C extends Context, T extends MiddlewareTransform<C>, M extends TClassIndefiner<T>>(classModule: ComposeMiddleware<C> | M) {
     if ((classModule as M).prototype && (classModule as M).prototype.use) {
       this.injectClassModules(classModule as M);
     }
@@ -81,13 +72,44 @@ export class Application<S extends {
     if (this._subscribed) return this;
     this._unSubscribe = useHistoryFeedback(url => {
       if (this._initialized) return this.createContext(url);
-      return this.trigger('Application.onInit', () => {
+      // @ts-ignore
+      return this.emitApplicationInitialize(() => {
         this._initialized = true;
         this.createContext(url);
       });
     });
     this._subscribed = true;
     return this;
+  }
+
+  private emitApplicationInitialize(next: () => void) {
+    // @ts-ignore
+    if (typeof this.applicationInitialize === 'function') {
+      // @ts-ignore
+      this.applicationInitialize(next);
+    } else  {
+      next();
+    }
+  }
+
+  private emitApplicationComponentRenderr<C extends Context = Context>(context: C, server: any, key: string, meta: TAnnotationScanerMethod) {
+    // @ts-ignore
+    if (typeof this.applicationComponentRender === 'function') {
+      // @ts-ignore
+      this.applicationComponentRender(context, server, key, meta);
+    } else {
+      throw new Error('Can not render component in application render lifecycle.');
+    }
+  }
+
+  private emitApplicationErrorRender(virtualNode: any) {
+    // @ts-ignore
+    if (typeof this.applicationErrorRender === 'function') {
+      // @ts-ignore
+      this.applicationErrorRender(virtualNode);
+    } else {
+      throw new Error('Can not render error in application error lifecycle.');
+    }
   }
 
   /**
@@ -114,8 +136,18 @@ export class Application<S extends {
    *  app.onNotFound((req: Request) => { ... });
    * ```
    */
-  public onNotFound(callback: (...args: TNotFound['arguments']) => TNotFound['return']) {
-    return this.on('Application.onNotFound', callback);
+  public onNotFound(callback: TNotFound) {
+    this._onNotFoundHandler = callback;
+    return this;
+  }
+
+  public emitNotFound(req: Request) {
+    if (typeof this._onNotFoundHandler === 'function') {
+      const result = this._onNotFoundHandler(req);
+      if (result) {
+        this.emitApplicationErrorRender(result);
+      }
+    }
   }
 
   /**
@@ -125,12 +157,33 @@ export class Application<S extends {
    *  app.onError((err, ctx) => { ... });
    * ```
    */
-  public onError(callback: (...args: TError['arguments']) => TError['return']) {
-    return this.on('Application.onError', callback);
+  public onError(callback: TError) {
+    this._onErrorHandler = callback;
+    return this;
   }
 
-  public onHashAnchor(callback: (...args: THashAnchor['arguments']) => THashAnchor['return']) {
-    return this.on('Application.onHashAnchorChange', callback);
+  public getError<E extends Error = Error, C extends Context = Context>(e: E, c: C) {
+    if (typeof this._onErrorHandler === 'function') {
+      return this._onErrorHandler(e, c);
+    }
+  }
+
+  public emitError<E extends Error = Error, C extends Context = Context>(e: E, c: C) {
+    const result = this.getError(e, c);
+    if (result) {
+      this.emitApplicationErrorRender(result);
+    }
+  }
+
+  public onHashAnchor(callback: THashAnchor) {
+    this._onHashChangeHandler = callback;
+    return this;
+  }
+
+  public emitHashAnchor<E extends HTMLElement = HTMLElement>(e: E) {
+    if (typeof this._onHashChangeHandler === 'function') {
+      this._onHashChangeHandler(e);
+    }
   }
 
   // create a new context for request.
@@ -143,10 +196,7 @@ export class Application<S extends {
       
       // Not found.
       // You can deal with Application.onNotFound by return a value.
-      if (!handler) return this.trigger(
-        'Application.onErrorRender', 
-        this.trigger('Application.onNotFound', req)
-      );
+      if (!handler) return this.emitNotFound(req);
 
       if (prevContext) {
         // deal with old context
@@ -233,19 +283,9 @@ export class Application<S extends {
             )
           }
           if (actions.length) {
-            ActionTransforming(context, method, server, key, actions).catch(e => {
-              this.trigger(
-                'Application.onErrorRender', 
-                this.trigger('Application.onError', e, context)
-              );
-            })
+            ActionTransforming(context, method, server, key, actions).catch(e => this.emitError(e, context));
           } else {
-            ContextTransforming(context, method, () => {
-              return Promise.resolve(this.trigger(
-                'Application.onRender', 
-                context, server, key, method
-              ));
-            });
+            ContextTransforming(context, method, () => Promise.resolve(this.emitApplicationComponentRenderr(context, server, key, method)));
           }
         })
       });

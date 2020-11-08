@@ -1,4 +1,4 @@
-import { Application, Context, TAnnotationScanerMethod, TApplicationOptions } from '@typeclient/core';
+import { Application, Context, TAnnotationScanerMethod, TApplicationLifeCycles, TApplicationOptions } from '@typeclient/core';
 import { createApp, defineComponent, onMounted, h, DefineComponent, shallowRef, Ref } from 'vue';
 import { NAMESPACE } from './annotations';
 import { useApplicationContext, _ApplicationContext, createReactiveContext } from './context';
@@ -7,21 +7,30 @@ export interface TVueApplicationOptions extends TApplicationOptions {
   el: HTMLElement | string
 }
 
-export class VueApplication extends Application {
+export class VueApplication extends Application implements TApplicationLifeCycles<JSX.Element | DefineComponent> {
+  private readonly element: HTMLElement | string;
   public readonly FCS: WeakMap<any, Map<string, DefineComponent<any, any, any>>> = new WeakMap();
   private _context$ = createReactiveContext();
   private _template$: Ref<DefineComponent> = shallowRef(null);
-  private _slot$: Ref<DefineComponent> = shallowRef(null);
+  private _slot$: Ref<JSX.Element | DefineComponent> = shallowRef(null);
 
   constructor(options: TVueApplicationOptions) {
     super(options);
-    this.on('Application.onInit', next => this.setup(options.el, next));
-    this.on('Application.onRender', (ctx, server, key, metadata) => this.render(ctx, server, key, metadata));
-    this.on('Application.onErrorRender', (node: any) => {
-      this._slot$.value = node;
-      this._template$.value = null;
-    });
+    this.element = options.el;
     this.installContextTask();
+  }
+
+  public applicationComponentRender(ctx: Context, server: any, key: string, metadata: TAnnotationScanerMethod) {
+    return this.render(ctx, server, key, metadata);
+  }
+  
+  public applicationErrorRender(node: JSX.Element | DefineComponent) {
+    this._slot$.value = node;
+    this._template$.value = null;
+  }
+
+  public applicationInitialize(next: () => void) {
+    return this.setup(this.element, next);
   }
 
   private installContextTask() {
