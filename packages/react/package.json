@@ -1,6 +1,6 @@
 {
   "name": "@typeclient/react",
-  "version": "1.5.8",
+  "version": "1.5.9",
   "description": "typeclient react",
   "author": "",
   "homepage": "https://github.com/flowxjs/TypeClient",
@@ -23,7 +23,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@typeclient/core": "^1.2.23",
+    "@typeclient/core": "^1.2.24",
     "@typeclient/react-effect": "^1.0.10",
     "@types/react": "^16.9.41",
     "@types/react-dom": "^16.9.8"
