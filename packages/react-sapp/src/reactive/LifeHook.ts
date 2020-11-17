@@ -14,5 +14,5 @@ export function useContextEffect<T extends Context = Context>(callback: () => ((
         break;
       case 100: return context.useEffect(callback);
     }
-  }, []);
+  }, [context.status.value, callback]);
 }

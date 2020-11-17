@@ -1,6 +1,5 @@
 import { TAnnotationScanerMethod } from '../annotation';
 import { Context } from './context';
-import { Request } from './request';
 
 export interface TApplicationLifeCycles<T> {
   applicationInitialize?(next: () => void): void;
