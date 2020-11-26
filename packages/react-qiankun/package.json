@@ -1,6 +1,6 @@
 {
   "name": "@typeclient/react-qiankun",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "typeclient react-qiankun",
   "author": "",
   "homepage": "https://github.com/flowxjs/TypeClient",
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@typeclient/core": "^1.2.24",
-    "@typeclient/react": "^1.5.9",
+    "@typeclient/react": "^1.5.10",
     "qiankun": "^2.3.0"
   },
   "peerDependencies": {
