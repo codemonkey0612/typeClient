@@ -1,4 +1,5 @@
 type THistoryStack = (u: string) => void;
+let invokeTimer: any;
 interface THistory {
   mode: 'hashchange' | 'popstate',
   stacks: THistoryStack[],
@@ -12,6 +13,15 @@ const History: THistory = {
 }
 
 window.addEventListener(History.mode, invoke);
+
+export function invoke() {
+  clearTimeout(invokeTimer);
+  invokeTimer = setTimeout(() => {
+    const url = History.listener ? getUrlByLocation() : '/';
+    let i = History.stacks.length;
+    while (i--) History.stacks[i](url);
+  }, 16);
+}
 
 export function unSubscribe() {
   if (History.listener) {
@@ -41,12 +51,6 @@ export function usePopStateHistoryMode() {
     window.addEventListener(History.mode = mode, invoke);
     History.listener = invoke;
   }
-}
-
-export function invoke() {
-  const url = History.listener ? getUrlByLocation() : '/';
-  let i = History.stacks.length;
-  while (i--) History.stacks[i](url);
 }
 
 function getUrlByLocation() {
