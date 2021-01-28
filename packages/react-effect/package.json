@@ -22,7 +22,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@vue/reactivity": "^3.0.0-rc.5"
+    "@types/next-tick": "^1.0.0",
+    "@vue/reactivity": "^3.0.0-rc.5",
+    "next-tick": "^1.1.0"
   },
   "peerDependencies": {
     "react": "^17.0.0"

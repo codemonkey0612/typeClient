@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { ReactApplication, Template, Component, ComponentTransform, useComponent, useSlot, useReactiveState } from '../src';
 import { bootstrp, Controller, Route, State, Context, usePopStateHistoryMode, ComposeNextCallback, useMiddleware } from '@typeclient/core';
 import { inject } from 'inversify';
@@ -18,7 +18,6 @@ async function mm(ctx: TC, next: ComposeNextCallback) {
 @Component()
 class View implements ComponentTransform {
   render(props: React.PropsWithoutRef<{ ctx: TC }>) {
-    console.log('ctx', props.ctx)
     const count = useReactiveState(() => props.ctx.state.count, [props.ctx.id]);
     return <div>s6666 - {count}</div>
   }
@@ -38,7 +37,6 @@ class CustomController {
     const count = useReactiveState(() => ctx.state.count);
     const { Provider } = useSlot(ctx.app);
     const View = useComponent(this.View);
-
     return <Fragment>
       <div onClick={() => ctx.redirect('/b')}>a: {count}</div>
       <Provider name="slot"><View ctx={ctx} /></Provider>

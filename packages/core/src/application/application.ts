@@ -1,10 +1,10 @@
+import nextTick from 'next-tick';
 import { join } from 'path';
 import { useHistoryFeedback, redirect, replace, reload } from '../history';
 import { TClassIndefiner, AnnotationMetaDataScan, NAMESPACE, AnnotationDependenciesAutoRegister, TAnnotationScanerMethod } from '../annotation';
 import { TypeClientContainer } from '../ioc';
 import { Router, RouterArguments } from '../router';
 import { Context } from './context';
-import { createNextTick } from '../history/next-tick';
 import { ActionTransforming, ContextTransforming } from './transform';
 import { Request } from './request';
 import { ComposeMiddleware } from './compose';
@@ -33,8 +33,6 @@ export class Application {
 
   // history reload action
   public readonly reload = reload;
-  // @ts-ignore
-  public readonly nextTick = createNextTick((e: Error, ctx: Context) => this.emitError(e, ctx));
 
   public setBeforeContextCreate(callback: (props: TBeforeContextCreateProps) => void) {
     this._beforeContextCreate = callback;
@@ -207,7 +205,7 @@ export class Application {
         }
       }
       req.params = handler.params || {};
-      this.nextTick(req, handler.handler);
+      nextTick(() => handler.handler.call(req, req));
     }
   }
 

@@ -1,4 +1,5 @@
 import mitt from 'mitt';
+import nextTick from 'next-tick';
 import { Request } from './request';
 import { Application } from './application';
 import { reactive, Ref, UnwrapRef, ref } from '@vue/reactivity';
@@ -36,7 +37,7 @@ export class Context<T extends object = {}> {
       if (hash) {
         const id = hash.substring(1);
         if (id) {
-          this.app.nextTick(null, () => {
+          nextTick(() => {
             const el = document.getElementById(id);
             if (el) {
               this.app.emitHashAnchor(el);
