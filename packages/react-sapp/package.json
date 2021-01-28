@@ -1,6 +1,6 @@
 {
   "name": "@typeclient/react-sapp",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "typeclient react-sapp",
   "author": "",
   "homepage": "https://github.com/flowxjs/TypeClient",
@@ -22,7 +22,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@typeclient/core": "^1.4.0",
+    "@typeclient/core": "^1.4.2",
     "@typeclient/react-effect": "^1.1.0"
   },
   "peerDependencies": {
